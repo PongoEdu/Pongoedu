@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   ChevronLeft,
@@ -32,7 +32,17 @@ const menuItems: MenuItem[] = [
     path: "/professor",
   },
   {
-    title: "Cadastros",
+    title: "Cadastrar",
+    icon: ClipboardList,
+    submenu: [
+      { title: "Reagentes", path: "/professor/reagentes", icon: TestTube },
+      { title: "Vidrarias", path: "/professor/vidrarias", icon: Beaker },
+      { title: "Coleção Zoológica", path: "/professor/colecao-zoologica", icon: Bug },
+      { title: "Modelos Anatômicos", path: "/professor/modelos-anatomicos", icon: Heart },
+    ],
+  },
+  {
+    title: "Estoque",
     icon: ClipboardList,
     submenu: [
       { title: "Reagentes", path: "/professor/reagentes", icon: TestTube },
@@ -62,9 +72,7 @@ const menuItems: MenuItem[] = [
     title: "Games",
     icon: Gamepad2,
     submenu: [
-      { title: "Química N1", path: "/professor/games/quimica-n1", icon: Gamepad2 },
-      { title: "Química N2", path: "/professor/games/quimica-n2", icon: Gamepad2 },
-      { title: "Química N3", path: "/professor/games/quimica-n3", icon: Gamepad2 },
+      { title: "Química", path: "/professor/games/quimica-n1", icon: Gamepad2 },    
       { title: "Biologia", path: "/professor/games/biologia", icon: Gamepad2 },
     ],
   },
@@ -72,14 +80,42 @@ const menuItems: MenuItem[] = [
 
 export function ProfessorLayout() {
   const [collapsed, setCollapsed] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(["Cadastros"]);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const location = useLocation();
 
+  // Função para alternar menu - fecha outros menus quando um é aberto
   const toggleMenu = (title: string) => {
-    setExpandedMenus((prev) =>
-      prev.includes(title) ? prev.filter((item) => item !== title) : [...prev, title]
-    );
+    setExpandedMenus((prev) => {
+      if (prev.includes(title)) {
+        // Se está aberto, fecha
+        return prev.filter((item) => item !== title);
+      } else {
+        // Se está fechado, abre e fecha os outros
+        return [title];
+      }
+    });
   };
+
+  // Detecta a rota atual e expande o módulo correto automaticamente
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    // Encontra qual módulo contém a rota atual
+    const activeModule = menuItems.find((item) => {
+      if (item.submenu) {
+        return item.submenu.some((subitem) => subitem.path === currentPath);
+      }
+      return false;
+    });
+
+    // Se encontrou um módulo, expande ele
+    if (activeModule) {
+      setExpandedMenus([activeModule.title]);
+    } else if (currentPath === "/professor") {
+      // Se está no dashboard, fecha todos os módulos
+      setExpandedMenus([]);
+    }
+  }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
 

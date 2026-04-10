@@ -4,7 +4,7 @@ export function Dashboard() {
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl mb-2">Dashboard</h1>
+        <h1 className="text-3xl mb-2">Bom dia,</h1>
         <p className="text-muted-foreground">Bem-vindo ao painel de controle do professor</p>
       </div>
 
