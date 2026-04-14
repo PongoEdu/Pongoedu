@@ -42,7 +42,7 @@ export function Home() {
 
         <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-6 sm:mb-8 px-3">O único sistema que conecta o laboratório <span className="text-primary font-bold">tem</span> ao que os professores <span className="text-secondary font-bold">precisam ensinar</span> — em tempo real!</p>
 
-        <div className="flex gap-3 justify-center flex-wrap px-3">
+        <div className="flex gap-3 justify-center flex-wrap px-3 mb-8">
           <button className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-primary-foreground rounded-2xl hover:scale-105 transition-transform shadow-lg hover:shadow-xl text-sm sm:text-base">
             Começar Agora
           </button>

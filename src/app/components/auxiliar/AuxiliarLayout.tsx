@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   ChevronLeft,
+  CalendarCheck,
   ChevronRight,
   TestTube,
   Beaker,
@@ -10,16 +11,12 @@ import {
   BookOpen,
   ClipboardList,
   FlaskConical,
-  Users,
-  GraduationCap,
-  Gamepad2,
   Home,
   LogOut,
   Package,
-  CalendarCheck,
-  Search,
+  ShoppingCart,
   FileText,
-  School,
+  Truck,
 } from "lucide-react";
 import { MascotLogo } from "../mascot-logo";
 
@@ -34,54 +31,38 @@ const menuItems: MenuItem[] = [
   {
     title: "Dashboard",
     icon: Home,
-    path: "/professor",
+    path: "/auxiliar",
   },
   {
-    title: "Turmas",
-    icon: Users,
-    submenu: [
-      { title: "Minhas Turma", path: "/professor/turmas/cadastrar", icon: ClipboardList },
-      { title: "Alunos", path: "/professor/alunos", icon: GraduationCap },
-    ],
-  },
-  {
-    title: "Inventário",
+    title: "Estoque",
     icon: Package,
     submenu: [
-      { title: "Reagentes", path: "/professor/reagentes", icon: TestTube },
-      { title: "Vidrarias", path: "/professor/vidrarias", icon: Beaker },
-      { title: "Coleção Zoológica", path: "/professor/colecao-zoologica", icon: Bug },
-      { title: "Modelos Anatômicos", path: "/professor/modelos-anatomicos", icon: Heart },
+      { title: "Reagentes", path: "/auxiliar/reagentes", icon: TestTube },
+      { title: "Vidrarias", path: "/auxiliar/vidrarias", icon: Beaker },
+      { title: "Coleção Zoológica", path: "/auxiliar/colecao-zoologica", icon: Bug },
+      { title: "Modelos Anatômicos", path: "/auxiliar/modelos-anatomicos", icon: Heart },
+      { title: "Inventário", path: "/auxiliar/inventario", icon: ClipboardList },
     ],
   },
   {
-    title: "Conteúdos",
-    icon: BookOpen,
+    title: "Solicitações",
+    icon: ShoppingCart,
     submenu: [
-      { title: "Roteiros de Aula", path: "/professor/roteiros", icon: FileText },
-      { title: "Atividades", path: "/professor/atividades", icon: ClipboardList },
-      { title: "Práticas", path: "/professor/praticas", icon: FlaskConical },
+      { title: "Compras", path: "/auxiliar/solicitacoes/compras", icon: ShoppingCart },
+      { title: "Roteiros de Aula", path: "/auxiliar/roteiros", icon: FileText },
+      { title: "Reservas do Laboratório", path: "/auxiliar/solicitacoes/reservas", icon: CalendarCheck },
     ],
   },
   {
-    title: "Agendamentos",
-    icon: CalendarCheck,
-    submenu: [
-      { title: "Reservas do Laboratório", path: "/professor/agendamentos/reservas", icon: CalendarCheck },
-      { title: "Minhas Solicitações", path: "/professor/agendamentos/solicitacoes", icon: ClipboardList },
-    ],
-  },
-  {
-    title: "Games",
-    icon: Gamepad2,
-    submenu: [
-      { title: "Química", path: "/professor/games/quimica-n1", icon: Gamepad2 },
-      { title: "Biologia", path: "/professor/games/biologia", icon: Gamepad2 },
-    ],
-  },
+  title: "Recebimento",
+  icon: Truck,
+  submenu: [
+    { title: "Entradas", path: "/auxiliar/recebimento/entradas", icon: ClipboardList },
+  ],
+  }
 ];
 
-export function ProfessorLayout() {
+export function AuxiliarLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const location = useLocation();
@@ -114,7 +95,7 @@ export function ProfessorLayout() {
     // Se encontrou um módulo, expande ele
     if (activeModule) {
       setExpandedMenus([activeModule.title]);
-    } else if (currentPath === "/professor") {
+    } else if (currentPath === "/auxiliar") {
       // Se está no dashboard, fecha todos os módulos
       setExpandedMenus([]);
     }
@@ -137,7 +118,7 @@ export function ProfessorLayout() {
               <MascotLogo />
               <div>
                 <h1 className="text-primary text-lg">PongoEdu</h1>
-                <p className="text-xs text-muted-foreground">Professor</p>
+                <p className="text-xs text-muted-foreground">Auxiliar</p>
               </div>
             </div>
           )}
