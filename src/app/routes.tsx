@@ -13,8 +13,8 @@ import { AuxiliarDashboard } from "./components/auxiliar/AuxiliarDashboard";
 
 import { AlunoLayout } from "./components/aluno/AlunoLayout";
 import { AlunoDashboard } from "./components/aluno/AlunoDashboard";
-import { QuimicaGamePage } from "./components/aluno/games/QuimicaGamePage";
-import { BiologiaGamePage } from "./components/aluno/games/BiologiaGamePage";
+import { QuimicaGamePage } from "./components/aluno/games/pages/QuimicaGamePage";
+import { BiologiaGamePage } from "./components/aluno/games/pages/BiologiaGamePage";
 
 import {
   Beaker,
