@@ -5,7 +5,6 @@ import { CreateAccount } from "./components/CreateAccount";
 
 import { ProfessorLayout } from "./components/professor/ProfessorLayout";
 import { Dashboard } from "./components/professor/Dashboard";
-import { Reagentes } from "./components/professor/Reagentes";
 import { ModulePlaceholder } from "./components/professor/ModulePlaceholder";
 
 import { AuxiliarLayout } from "./components/auxiliar/AuxiliarLayout";
@@ -15,6 +14,8 @@ import { AlunoLayout } from "./components/aluno/AlunoLayout";
 import { AlunoDashboard } from "./components/aluno/AlunoDashboard";
 import { QuimicaGamePage } from "./components/aluno/games/pages/QuimicaGamePage";
 import { BiologiaGamePage } from "./components/aluno/games/pages/BiologiaGamePage";
+import { ExperimentosCatalogo } from "./components/components/experimentos/ExperimentosCatalogo";
+import { ExperimentoDetalhe } from "./components/auxiliar/ExperimentoDetalhe";
 
 import {
   Beaker,
@@ -33,6 +34,8 @@ import {
   FileText,
   Truck,
 } from "lucide-react";
+import { ReagentesViewer } from "./components/professor/ReagentesViewer";
+import { ReagentesManagement } from "./components/auxiliar/ReagentesManagement";
 
 export const router = createBrowserRouter([
   {
@@ -79,7 +82,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "reagentes",
-        element: <Reagentes />,
+        element: <ReagentesViewer />,
+      },
+      {
+        path: "experimentos",
+        element: <ExperimentosCatalogo />,
+      },
+      {
+        path: "experimentos/:id",
+        element: <ExperimentoDetalhe />,
       },
       {
         path: "vidrarias",
@@ -195,7 +206,16 @@ export const router = createBrowserRouter([
       },
       {
         path: "reagentes",
-        element: <Reagentes />,
+        element: <ReagentesManagement />,
+        
+      },
+      {
+        path: "experimentos",
+        element: <ExperimentosCatalogo />,
+      },
+      {
+        path: "experimentos/:id",
+        element: <ExperimentoDetalhe />,
       },
       {
         path: "vidrarias",

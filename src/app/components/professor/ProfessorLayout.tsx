@@ -61,6 +61,7 @@ const menuItems: MenuItem[] = [
       { title: "Roteiros de Aula", path: "/professor/roteiros", icon: FileText },
       { title: "Atividades", path: "/professor/atividades", icon: ClipboardList },
       { title: "Práticas", path: "/professor/praticas", icon: FlaskConical },
+      { title: "Experimentos", icon: FlaskConical, path: "/professor/experimentos" },
     ],
   },
   {

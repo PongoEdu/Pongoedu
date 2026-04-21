@@ -41,6 +41,7 @@ const menuItems: MenuItem[] = [
       { title: "Vidrarias", path: "/auxiliar/vidrarias", icon: Beaker },
       { title: "Coleção Zoológica", path: "/auxiliar/colecao-zoologica", icon: Bug },
       { title: "Modelos Anatômicos", path: "/auxiliar/modelos-anatomicos", icon: Heart },
+      { title: "Experimentos", icon: FlaskConical, path: "/auxiliar/experimentos" },
       { title: "Inventário", path: "/auxiliar/inventario", icon: ClipboardList },
     ],
   },
@@ -54,11 +55,11 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-  title: "Recebimento",
-  icon: Truck,
-  submenu: [
-    { title: "Entradas", path: "/auxiliar/recebimento/entradas", icon: ClipboardList },
-  ],
+    title: "Recebimento",
+    icon: Truck,
+    submenu: [
+      { title: "Entradas", path: "/auxiliar/recebimento/entradas", icon: ClipboardList },
+    ],
   }
 ];
 
@@ -107,9 +108,8 @@ export function AuxiliarLayout() {
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <aside
-        className={`${
-          collapsed ? "w-20" : "w-64"
-        } bg-card border-r-2 border-border transition-all duration-300 flex flex-col`}
+        className={`${collapsed ? "w-20" : "w-64"
+          } bg-card border-r-2 border-border transition-all duration-300 flex flex-col`}
       >
         {/* Header */}
         <div className="p-4 border-b-2 border-border flex items-center justify-between">
@@ -144,11 +144,10 @@ export function AuxiliarLayout() {
               {item.path ? (
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors ${
-                    isActive(item.path)
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors ${isActive(item.path)
                       ? "bg-primary text-primary-foreground"
                       : "hover:bg-accent text-foreground"
-                  }`}
+                    }`}
                   title={collapsed ? item.title : undefined}
                 >
                   <item.icon size={20} className="flex-shrink-0" />
@@ -158,9 +157,8 @@ export function AuxiliarLayout() {
                 <>
                   <button
                     onClick={() => !collapsed && toggleMenu(item.title)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors hover:bg-accent text-foreground ${
-                      collapsed ? "justify-center" : "justify-between"
-                    }`}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-colors hover:bg-accent text-foreground ${collapsed ? "justify-center" : "justify-between"
+                      }`}
                     title={collapsed ? item.title : undefined}
                   >
                     <div className="flex items-center gap-3">
@@ -170,9 +168,8 @@ export function AuxiliarLayout() {
                     {!collapsed && (
                       <ChevronRight
                         size={16}
-                        className={`transition-transform ${
-                          expandedMenus.includes(item.title) ? "rotate-90" : ""
-                        }`}
+                        className={`transition-transform ${expandedMenus.includes(item.title) ? "rotate-90" : ""
+                          }`}
                       />
                     )}
                   </button>
@@ -182,11 +179,10 @@ export function AuxiliarLayout() {
                         <Link
                           key={subitem.path}
                           to={subitem.path}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-sm ${
-                            isActive(subitem.path)
+                          className={`flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-colors text-sm ${isActive(subitem.path)
                               ? "bg-primary/20 text-primary"
                               : "hover:bg-accent text-muted-foreground"
-                          }`}
+                            }`}
                         >
                           <subitem.icon size={16} className="flex-shrink-0" />
                           <span>{subitem.title}</span>
