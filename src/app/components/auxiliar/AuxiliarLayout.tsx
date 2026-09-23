@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import {
   ChevronLeft,
   CalendarCheck,
@@ -8,7 +8,6 @@ import {
   Beaker,
   Bug,
   Heart,
-  BookOpen,
   ClipboardList,
   FlaskConical,
   Home,
@@ -17,8 +16,12 @@ import {
   ShoppingCart,
   FileText,
   Truck,
+  Users,
+  HandCoins,
+  Bell,
 } from "lucide-react";
 import { MascotLogo } from "../mascot-logo";
+import { useAuth } from "../../auth/AuthContext";
 
 interface MenuItem {
   title: string;
@@ -50,6 +53,7 @@ const menuItems: MenuItem[] = [
     icon: ShoppingCart,
     submenu: [
       { title: "Compras", path: "/auxiliar/solicitacoes/compras", icon: ShoppingCart },
+      { title: "Empréstimos", path: "/auxiliar/solicitacoes/emprestimos", icon: HandCoins },
       { title: "Roteiros de Aula", path: "/auxiliar/roteiros", icon: FileText },
       { title: "Reservas do Laboratório", path: "/auxiliar/solicitacoes/reservas", icon: CalendarCheck },
     ],
@@ -60,13 +64,30 @@ const menuItems: MenuItem[] = [
     submenu: [
       { title: "Entradas", path: "/auxiliar/recebimento/entradas", icon: ClipboardList },
     ],
-  }
+  },
+  {
+    title: "Usuários",
+    icon: Users,
+    path: "/auxiliar/usuarios",
+  },
+  {
+    title: "Notificações",
+    icon: Bell,
+    path: "/auxiliar/notificacoes",
+  },
 ];
 
 export function AuxiliarLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { usuario, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   // Função para alternar menu - fecha outros menus quando um é aberto
   const toggleMenu = (title: string) => {
@@ -118,7 +139,9 @@ export function AuxiliarLayout() {
               <MascotLogo />
               <div>
                 <h1 className="text-primary text-lg">PongoEdu</h1>
-                <p className="text-xs text-muted-foreground">Auxiliar</p>
+                <p className="text-xs text-muted-foreground truncate max-w-[140px]">
+                  {usuario?.nome ?? "Auxiliar"}
+                </p>
               </div>
             </div>
           )}
@@ -198,14 +221,14 @@ export function AuxiliarLayout() {
 
         {/* Footer */}
         <div className="p-4 border-t-2 border-border">
-          <Link
-            to="/login"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent text-foreground transition-colors"
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-accent text-foreground transition-colors"
             title={collapsed ? "Sair" : undefined}
           >
             <LogOut size={20} className="flex-shrink-0" />
             {!collapsed && <span className="text-sm">Sair</span>}
-          </Link>
+          </button>
         </div>
       </aside>
 

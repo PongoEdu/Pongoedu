@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Clock,
@@ -8,48 +9,13 @@ import {
   CheckCircle,
   XCircle,
   BookOpen,
-  Flame,
-  Droplets,
-  Palette,
-  Lightbulb,
-  Wind,
-  Magnet,
+  CalendarPlus,
 } from "lucide-react";
+import { roteirosApi } from "../../../lib/api/roteiros";
+import { useAuth, mensagemDeErro } from "../../auth/AuthContext";
+import type { NivelSeguranca, RoteiroResponse } from "../../../lib/api/types";
 
-interface ReagenteDetalhe {
-  id: number;
-  nome: string;
-  formula: string;
-  quantidade: number;
-  status: string;
-}
-
-interface ExperimentoDetalhe {
-  id: number;
-  nome: string;
-  descricao: string;
-  passoAPasso: string;
-  efeito: string;
-  nivelSeguranca: string;
-  tempoEstimado: number;
-  serie: string;
-  disciplina: string;
-  reagentes: ReagenteDetalhe[];
-}
-
-const efeitoConfig: Record<
-  string,
-  { label: string; icon: React.ElementType; color: string }
-> = {
-  FOGO: { label: "Fogo", icon: Flame, color: "text-orange-500 bg-orange-50 border-orange-200" },
-  ESPUMA: { label: "Espuma", icon: Droplets, color: "text-blue-500 bg-blue-50 border-blue-200" },
-  COR: { label: "Cor", icon: Palette, color: "text-purple-500 bg-purple-50 border-purple-200" },
-  LUZ: { label: "Luz", icon: Lightbulb, color: "text-yellow-500 bg-yellow-50 border-yellow-200" },
-  GAS: { label: "Gás", icon: Wind, color: "text-teal-500 bg-teal-50 border-teal-200" },
-  MAGNETISMO: { label: "Magnetismo", icon: Magnet, color: "text-red-500 bg-red-50 border-red-200" },
-};
-
-const segurancaConfig: Record<string, { label: string; color: string; desc: string }> = {
+const segurancaConfig: Record<NivelSeguranca, { label: string; color: string; desc: string }> = {
   BAIXO: {
     label: "Baixo",
     color: "bg-green-100 text-green-600 border-green-200",
@@ -67,29 +33,30 @@ const segurancaConfig: Record<string, { label: string; color: string; desc: stri
   },
 };
 
-const API_BASE = "http://localhost:8080/api/v1";
+const nivelEnsinoLabel: Record<string, string> = {
+  FUNDAMENTAL_I: "Fundamental I",
+  FUNDAMENTAL_II: "Fundamental II",
+  MEDIO: "Ensino Médio",
+};
 
 export function ExperimentoDetalhe() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [experimento, setExperimento] = useState<ExperimentoDetalhe | null>(null);
+  const { usuario } = useAuth();
+  const [roteiro, setRoteiro] = useState<RoteiroResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchExperimento();
+    if (id) fetchRoteiro(Number(id));
   }, [id]);
 
-  const fetchExperimento = async () => {
+  const fetchRoteiro = async (roteiroId: number) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_BASE}/experimentos/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setExperimento(data);
+      const data = await roteirosApi.buscar(roteiroId);
+      setRoteiro(data);
     } catch (err) {
-      console.error("Erro ao buscar experimento:", err);
+      toast.error(mensagemDeErro(err, "Erro ao buscar roteiro."));
     } finally {
       setLoading(false);
     }
@@ -103,7 +70,7 @@ export function ExperimentoDetalhe() {
     );
   }
 
-  if (!experimento) {
+  if (!roteiro) {
     return (
       <div className="p-6">
         <button
@@ -115,26 +82,21 @@ export function ExperimentoDetalhe() {
         </button>
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <FlaskConical className="w-16 h-16 mb-4 opacity-30" />
-          <p className="text-lg">Experimento não encontrado</p>
+          <p className="text-lg">Roteiro não encontrado</p>
         </div>
       </div>
     );
   }
 
-  const efeito = efeitoConfig[experimento.efeito];
-  const seguranca = segurancaConfig[experimento.nivelSeguranca];
-  const EfeitoIcon = efeito?.icon || FlaskConical;
-  const passos = experimento.passoAPasso
-    ? experimento.passoAPasso.split("\n").filter((p) => p.trim())
+  const seguranca = roteiro.nivelSeguranca ? segurancaConfig[roteiro.nivelSeguranca] : null;
+  const passos = roteiro.procedimento
+    ? roteiro.procedimento.split("\n").filter((p) => p.trim())
     : [];
 
-  const todosDisponiveis = experimento.reagentes?.every(
-    (r) => r.quantidade > 0
-  );
+  const todosDisponiveis = roteiro.materiais.every((m) => m.disponivel && !m.vencido);
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {/* Back button */}
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
@@ -143,160 +105,133 @@ export function ExperimentoDetalhe() {
         Voltar ao catálogo
       </button>
 
-      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">{experimento.nome}</h1>
+        <h1 className="text-3xl font-bold mb-4">{roteiro.titulo}</h1>
 
-        {/* Badges */}
         <div className="flex flex-wrap gap-3 mb-4">
-          {efeito && (
-            <span
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border ${efeito.color}`}
-            >
-              <EfeitoIcon size={16} />
-              {efeito.label}
-            </span>
-          )}
           {seguranca && (
-            <span
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border ${seguranca.color}`}
-            >
+            <span className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border ${seguranca.color}`}>
               <Shield size={16} />
               Segurança: {seguranca.label}
             </span>
           )}
-          {experimento.serie && (
+          {roteiro.nivelEnsino && (
             <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border bg-accent">
-              📚 {experimento.serie}
+              📚 {nivelEnsinoLabel[roteiro.nivelEnsino]}
             </span>
           )}
-          {experimento.disciplina && (
+          {roteiro.disciplina && (
             <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border bg-accent">
-              📖 {experimento.disciplina}
+              📖 {roteiro.disciplina}
             </span>
           )}
-          {experimento.tempoEstimado && (
+          {roteiro.tempoEstimadoMinutos && (
             <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-border bg-accent">
               <Clock size={16} />
-              {experimento.tempoEstimado} minutos
+              {roteiro.tempoEstimadoMinutos} minutos
+            </span>
+          )}
+          {roteiro.geradoPorIa && (
+            <span className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border border-primary/30 bg-primary/10 text-primary">
+              ✨ Gerado com IA
             </span>
           )}
         </div>
 
-        {/* Safety note */}
-        {seguranca && (
-          <p className="text-sm text-muted-foreground">
-            ⚠️ {seguranca.desc}
-          </p>
-        )}
+        {seguranca && <p className="text-sm text-muted-foreground">⚠️ {seguranca.desc}</p>}
       </div>
 
-      {/* Description */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-          <BookOpen size={20} className="text-primary" />
-          Descrição
-        </h2>
-        <div className="bg-card border-2 border-border rounded-2xl p-5">
-          <p className="text-muted-foreground leading-relaxed">
-            {experimento.descricao}
-          </p>
-        </div>
-      </section>
+      {roteiro.objetivo && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+            <BookOpen size={20} className="text-primary" />
+            Objetivo
+          </h2>
+          <div className="bg-card border-2 border-border rounded-2xl p-5">
+            <p className="text-muted-foreground leading-relaxed">{roteiro.objetivo}</p>
+          </div>
+        </section>
+      )}
 
-      {/* Reagents */}
       <section className="mb-8">
         <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
           <FlaskConical size={20} className="text-primary" />
-          Reagentes Necessários
+          Materiais Necessários
         </h2>
 
-        {/* Overall status */}
-        <div
-          className={`mb-4 px-4 py-3 rounded-xl border-2 text-sm font-medium ${
-            todosDisponiveis
-              ? "bg-green-50 border-green-200 text-green-700"
-              : "bg-red-50 border-red-200 text-red-700"
-          }`}
-        >
-          {todosDisponiveis
-            ? "✅ Todos os reagentes disponíveis em estoque"
-            : `❌ Faltam ${experimento.reagentes.filter((r) => r.quantidade <= 0).length} reagente(s)`}
-        </div>
+        {roteiro.materiais.length > 0 && (
+          <div
+            className={`mb-4 px-4 py-3 rounded-xl border-2 text-sm font-medium ${
+              todosDisponiveis
+                ? "bg-green-50 border-green-200 text-green-700"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            {todosDisponiveis
+              ? "✅ Todos os materiais disponíveis em estoque"
+              : `❌ Há materiais indisponíveis ou vencidos`}
+          </div>
+        )}
 
         <div className="bg-card border-2 border-border rounded-2xl overflow-hidden">
-          {experimento.reagentes?.map((reagente, index) => {
-            const disponivel = reagente.quantidade > 0;
-            return (
-              <div
-                key={reagente.id || index}
-                className={`flex items-center justify-between px-5 py-4 ${
-                  index < experimento.reagentes.length - 1
-                    ? "border-b border-border"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {disponivel ? (
-                    <CheckCircle
-                      size={20}
-                      className="text-green-500 flex-shrink-0"
-                    />
-                  ) : (
-                    <XCircle
-                      size={20}
-                      className="text-red-500 flex-shrink-0"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium">{reagente.nome}</p>
-                    {reagente.formula && (
-                      <p className="text-sm text-muted-foreground font-mono">
-                        {reagente.formula}
-                      </p>
+          {roteiro.materiais.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-muted-foreground">Nenhum material vinculado a este roteiro.</p>
+          ) : (
+            roteiro.materiais.map((material, index) => {
+              const disponivel = material.disponivel && !material.vencido;
+              return (
+                <div
+                  key={material.id}
+                  className={`flex items-center justify-between px-5 py-4 ${
+                    index < roteiro.materiais.length - 1 ? "border-b border-border" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {disponivel ? (
+                      <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
+                    ) : (
+                      <XCircle size={20} className="text-red-500 flex-shrink-0" />
                     )}
+                    <div>
+                      <p className="font-medium">{material.produtoNome}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Necessário: {material.quantidadeNecessaria}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                        disponivel
+                          ? "bg-green-100 text-green-600 border-green-200"
+                          : "bg-red-100 text-red-600 border-red-200"
+                      }`}
+                    >
+                      {material.vencido
+                        ? "Vencido"
+                        : `${material.quantidadeDisponivel} em estoque`}
+                    </span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium border ${
-                      disponivel
-                        ? "bg-green-100 text-green-600 border-green-200"
-                        : "bg-red-100 text-red-600 border-red-200"
-                    }`}
-                  >
-                    {disponivel
-                      ? `${reagente.quantidade} em estoque`
-                      : "Indisponível"}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </section>
 
-      {/* Step by step */}
       {passos.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            📋 Passo a Passo
-          </h2>
+          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">📋 Procedimento</h2>
           <div className="bg-card border-2 border-border rounded-2xl p-5">
             <div className="space-y-4">
               {passos.map((passo, index) => {
                 const textoLimpo = passo.replace(/^\d+\.\s*/, "");
                 return (
-                  <div
-                    key={index}
-                    className="flex gap-4"
-                  >
+                  <div key={index} className="flex gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
                       {index + 1}
                     </div>
-                    <p className="pt-1 text-muted-foreground leading-relaxed">
-                      {textoLimpo}
-                    </p>
+                    <p className="pt-1 text-muted-foreground leading-relaxed">{textoLimpo}</p>
                   </div>
                 );
               })}
@@ -305,20 +240,17 @@ export function ExperimentoDetalhe() {
         </section>
       )}
 
-      {/* Action button */}
-      <div className="flex justify-end">
-        <button
-          className={`px-8 py-3 rounded-xl text-lg font-medium transition-all shadow-lg flex items-center gap-2 ${
-            todosDisponiveis
-              ? "bg-primary text-primary-foreground hover:scale-105"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
-          }`}
-          disabled={!todosDisponiveis}
-        >
-          <BookOpen size={20} />
-          Usar este experimento
-        </button>
-      </div>
+      {usuario?.perfil === "PROFESSOR" && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => navigate(`/professor/agendamentos/reservas?roteiroId=${roteiro.id}`)}
+            className="px-8 py-3 rounded-xl text-lg font-medium transition-all shadow-lg flex items-center gap-2 bg-primary text-primary-foreground hover:scale-105"
+          >
+            <CalendarPlus size={20} />
+            Agendar prática com este roteiro
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,14 +1,24 @@
 import { createBrowserRouter } from "react-router";
 import { Home } from "./components/Home";
 import { Login } from "./components/Login";
-import { CreateAccount } from "./components/CreateAccount";
+import { Notificacoes } from "./components/Notificacoes";
+import { RequireAuth } from "./auth/RequireAuth";
 
 import { ProfessorLayout } from "./components/professor/ProfessorLayout";
 import { Dashboard } from "./components/professor/Dashboard";
 import { ModulePlaceholder } from "./components/professor/ModulePlaceholder";
+import { RoteirosManagement } from "./components/professor/RoteirosManagement";
+import { AgendaProfessor } from "./components/professor/AgendaProfessor";
+import { MeusEmprestimos } from "./components/professor/MeusEmprestimos";
 
 import { AuxiliarLayout } from "./components/auxiliar/AuxiliarLayout";
 import { AuxiliarDashboard } from "./components/auxiliar/AuxiliarDashboard";
+import { UsuariosManagement } from "./components/auxiliar/UsuariosManagement";
+import { SolicitacoesCompra } from "./components/auxiliar/SolicitacoesCompra";
+import { EmprestimosAuxiliar } from "./components/auxiliar/EmprestimosAuxiliar";
+import { AgendaAuxiliar } from "./components/auxiliar/AgendaAuxiliar";
+import { PrepararPratica } from "./components/auxiliar/PrepararPratica";
+import { RecebimentoEntradas } from "./components/auxiliar/RecebimentoEntradas";
 
 import { AlunoLayout } from "./components/aluno/AlunoLayout";
 import { AlunoDashboard } from "./components/aluno/AlunoDashboard";
@@ -21,18 +31,12 @@ import {
   Beaker,
   Bug,
   Heart,
-  BookOpen,
   ClipboardList,
   FlaskConical,
   Users,
   GraduationCap,
   Gamepad2,
-  TestTube,
   Package,
-  ShoppingCart,
-  CalendarCheck,
-  FileText,
-  Truck,
 } from "lucide-react";
 import { ReagentesViewer } from "./components/professor/ReagentesViewer";
 import { ReagentesManagement } from "./components/auxiliar/ReagentesManagement";
@@ -46,15 +50,15 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
-  {
-    path: "/criar-conta",
-    element: <CreateAccount />,
-  },
 
   // PROFESSOR
   {
     path: "/professor",
-    element: <ProfessorLayout />,
+    element: (
+      <RequireAuth perfil="PROFESSOR">
+        <ProfessorLayout />
+      </RequireAuth>
+    ),
     children: [
       {
         index: true,
@@ -124,13 +128,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "roteiros",
-        element: (
-          <ModulePlaceholder
-            icon={BookOpen}
-            title="Roteiros de Aulas"
-            description="Crie e gerencie roteiros pedagógicos vinculados ao inventário"
-          />
-        ),
+        element: <RoteirosManagement />,
       },
       {
         path: "atividades",
@@ -154,23 +152,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "agendamentos/reservas",
-        element: (
-          <ModulePlaceholder
-            icon={CalendarCheck}
-            title="Reservas do Laboratório"
-            description="Acompanhe e organize reservas do laboratório"
-          />
-        ),
+        element: <AgendaProfessor />,
       },
       {
         path: "agendamentos/solicitacoes",
-        element: (
-          <ModulePlaceholder
-            icon={ClipboardList}
-            title="Minhas Solicitações"
-            description="Acompanhe solicitações relacionadas ao laboratório"
-          />
-        ),
+        element: <MeusEmprestimos />,
+      },
+      {
+        path: "notificacoes",
+        element: <Notificacoes />,
       },
       {
         path: "games/quimica-n1",
@@ -198,7 +188,11 @@ export const router = createBrowserRouter([
   // AUXILIAR
   {
     path: "/auxiliar",
-    element: <AuxiliarLayout />,
+    element: (
+      <RequireAuth perfil="AUXILIAR_LABORATORIO">
+        <AuxiliarLayout />
+      </RequireAuth>
+    ),
     children: [
       {
         index: true,
@@ -207,7 +201,6 @@ export const router = createBrowserRouter([
       {
         path: "reagentes",
         element: <ReagentesManagement />,
-        
       },
       {
         path: "experimentos",
@@ -258,49 +251,41 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "usuarios",
+        element: <UsuariosManagement />,
+      },
+      {
         path: "solicitacoes/compras",
-        element: (
-          <ModulePlaceholder
-            icon={ShoppingCart}
-            title="Compras"
-            description="Gerencie solicitações de compra de materiais"
-          />
-        ),
+        element: <SolicitacoesCompra />,
+      },
+      {
+        path: "solicitacoes/emprestimos",
+        element: <EmprestimosAuxiliar />,
       },
       {
         path: "roteiros",
-        element: (
-          <ModulePlaceholder
-            icon={FileText}
-            title="Roteiros de Aula"
-            description="Visualize roteiros recebidos para preparação das aulas"
-          />
-        ),
+        element: <ExperimentosCatalogo />,
       },
       {
         path: "solicitacoes/reservas",
-        element: (
-          <ModulePlaceholder
-            icon={CalendarCheck}
-            title="Reservas do Laboratório"
-            description="Gerencie reservas e solicitações do laboratório"
-          />
-        ),
+        element: <AgendaAuxiliar />,
+      },
+      {
+        path: "agendamentos/:id/preparar",
+        element: <PrepararPratica />,
       },
       {
         path: "recebimento/entradas",
-        element: (
-          <ModulePlaceholder
-            icon={Truck}
-            title="Entradas"
-            description="Registre e acompanhe o recebimento de materiais"
-          />
-        ),
+        element: <RecebimentoEntradas />,
+      },
+      {
+        path: "notificacoes",
+        element: <Notificacoes />,
       },
     ],
   },
 
-  // ALUNO
+  // ALUNO (fora do escopo do backend de gestão de laboratório — visão gamificada, mantida como protótipo)
   {
     path: "/aluno",
     element: <AlunoLayout />,
@@ -333,7 +318,7 @@ export const router = createBrowserRouter([
         path: "roteiros",
         element: (
           <ModulePlaceholder
-            icon={FileText}
+            icon={ClipboardList}
             title="Roteiros de Aula"
             description="Acesse os roteiros disponibilizados pelos professores"
           />
@@ -363,7 +348,7 @@ export const router = createBrowserRouter([
         path: "agendamentos/reservas",
         element: (
           <ModulePlaceholder
-            icon={CalendarCheck}
+            icon={ClipboardList}
             title="Minhas Reservas"
             description="Consulte suas reservas e agendamentos"
           />

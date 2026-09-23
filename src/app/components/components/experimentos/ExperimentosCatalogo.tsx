@@ -1,117 +1,52 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import {
-  Flame,
-  Droplets,
-  Palette,
-  Lightbulb,
-  Wind,
-  Magnet,
-  Clock,
-  Shield,
-  FlaskConical,
-  Search,
-  Sparkles,
-} from "lucide-react";
+import { Clock, Shield, FlaskConical, Search, Plus, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { roteirosApi } from "../../../../lib/api/roteiros";
+import { mensagemDeErro, useAuth } from "../../../auth/AuthContext";
+import type { NivelSeguranca, RoteiroResponse } from "../../../../lib/api/types";
 
-interface ExperimentoDisponibilidade {
-  id: number;
-  nome: string;
-  descricao: string;
-  efeito: string;
-  nivelSeguranca: string;
-  tempoEstimado: number;
-  serie: string;
-  totalReagentes: number;
-  reagentesDisponiveis: number;
-  reagentesFaltando: string[];
-  disponivel: boolean;
-}
-
-const efeitoConfig: Record<
-  string,
-  { label: string; icon: React.ElementType; color: string }
-> = {
-  FOGO: { label: "Fogo", icon: Flame, color: "text-orange-500 bg-orange-50 border-orange-200" },
-  ESPUMA: { label: "Espuma", icon: Droplets, color: "text-blue-500 bg-blue-50 border-blue-200" },
-  COR: { label: "Cor", icon: Palette, color: "text-purple-500 bg-purple-50 border-purple-200" },
-  LUZ: { label: "Luz", icon: Lightbulb, color: "text-yellow-500 bg-yellow-50 border-yellow-200" },
-  GAS: { label: "Gás", icon: Wind, color: "text-teal-500 bg-teal-50 border-teal-200" },
-  MAGNETISMO: { label: "Magnetismo", icon: Magnet, color: "text-red-500 bg-red-50 border-red-200" },
-};
-
-const segurancaConfig: Record<string, { label: string; color: string }> = {
+const segurancaConfig: Record<NivelSeguranca, { label: string; color: string }> = {
   BAIXO: { label: "Baixo", color: "bg-green-100 text-green-600 border-green-200" },
   MEDIO: { label: "Médio", color: "bg-yellow-100 text-yellow-600 border-yellow-200" },
   ALTO: { label: "Alto", color: "bg-red-100 text-red-600 border-red-200" },
 };
 
-const API_BASE = "http://localhost:8080/api/v1";
-
 export function ExperimentosCatalogo() {
-  const [experimentos, setExperimentos] = useState<ExperimentoDisponibilidade[]>([]);
-  const [filtroEfeito, setFiltroEfeito] = useState<string | null>(null);
+  const { usuario } = useAuth();
+  const basePath = usuario?.perfil === "AUXILIAR_LABORATORIO" ? "/auxiliar" : "/professor";
+  const isProfessor = usuario?.perfil === "PROFESSOR";
+
+  const [roteiros, setRoteiros] = useState<RoteiroResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [somentePublicados, setSomentePublicados] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchExperimentos();
-  }, [filtroEfeito]);
+    fetchRoteiros();
+  }, [somentePublicados]);
 
-  const fetchExperimentos = async () => {
+  const fetchRoteiros = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const url = filtroEfeito
-        ? `${API_BASE}/experimentos?efeito=${filtroEfeito}`
-        : `${API_BASE}/experimentos`;
-
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setExperimentos(data);
+      const data = await roteirosApi.listar(somentePublicados || undefined);
+      setRoteiros(data);
     } catch (err) {
-      console.error("Erro ao buscar experimentos:", err);
+      toast.error(mensagemDeErro(err, "Erro ao buscar roteiros de prática."));
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredExperimentos = experimentos.filter((exp) =>
-    exp.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    exp.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    exp.serie?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRoteiros = roteiros.filter(
+    (r) =>
+      r.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.tema ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.disciplina ?? "").toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getDisponibilidade = (exp: ExperimentoDisponibilidade) => {
-    if (exp.disponivel) {
-      return {
-        label: "Disponível — todos os reagentes em estoque",
-        icon: "✅",
-        color: "bg-green-50 border-green-200 text-green-700",
-      };
-    }
-    const faltam = exp.totalReagentes - exp.reagentesDisponiveis;
-    if (faltam === 1) {
-      return {
-        label: `Falta 1 reagente: ${exp.reagentesFaltando[0]}`,
-        icon: "⚠️",
-        color: "bg-yellow-50 border-yellow-200 text-yellow-700",
-      };
-    }
-    return {
-      label: `Indisponível — faltam ${faltam} reagentes`,
-      icon: "❌",
-      color: "bg-red-50 border-red-200 text-red-700",
-    };
-  };
-
-  const efeitoKeys = Object.keys(efeitoConfig);
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -119,148 +54,126 @@ export function ExperimentosCatalogo() {
             <h1 className="text-3xl">Experimentos</h1>
           </div>
           <p className="text-muted-foreground">
-            Explore experimentos disponíveis no laboratório
+            Explore os roteiros de prática e a disponibilidade dos materiais no laboratório
           </p>
         </div>
-        <button className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg flex items-center gap-2">
-          <Sparkles size={20} />
-          <span>Sugerir com IA</span>
-        </button>
+        {isProfessor && (
+          <Link
+            to="/professor/roteiros"
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
+          >
+            <Plus size={20} />
+            <span>Novo Roteiro</span>
+          </Link>
+        )}
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Buscar por nome, descrição ou série..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors"
-        />
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Buscar por título, tema ou disciplina..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+        <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-border text-sm whitespace-nowrap cursor-pointer">
+          <input
+            type="checkbox"
+            checked={somentePublicados}
+            onChange={(e) => setSomentePublicados(e.target.checked)}
+          />
+          Somente publicados
+        </label>
       </div>
 
-      {/* Effect Filters */}
-      <div className="flex flex-wrap gap-3 mb-8">
-        <button
-          onClick={() => setFiltroEfeito(null)}
-          className={`px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
-            filtroEfeito === null
-              ? "bg-primary text-primary-foreground border-primary"
-              : "border-border hover:bg-accent"
-          }`}
-        >
-          Todos
-        </button>
-        {efeitoKeys.map((key) => {
-          const config = efeitoConfig[key];
-          const Icon = config.icon;
-          return (
-            <button
-              key={key}
-              onClick={() => setFiltroEfeito(key)}
-              className={`px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all flex items-center gap-2 ${
-                filtroEfeito === key
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : `border-border hover:bg-accent`
-              }`}
-            >
-              <Icon size={16} />
-              {config.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Results Count */}
       <p className="text-sm text-muted-foreground mb-4">
-        {filteredExperimentos.length} experimento
-        {filteredExperimentos.length !== 1 ? "s" : ""} encontrado
-        {filteredExperimentos.length !== 1 ? "s" : ""}
+        {filteredRoteiros.length} roteiro{filteredRoteiros.length !== 1 ? "s" : ""} encontrado
+        {filteredRoteiros.length !== 1 ? "s" : ""}
       </p>
 
-      {/* Cards Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
-      ) : filteredExperimentos.length === 0 ? (
+      ) : filteredRoteiros.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
           <FlaskConical className="w-16 h-16 mb-4 opacity-30" />
-          <p className="text-lg">Nenhum experimento encontrado</p>
+          <p className="text-lg">Nenhum roteiro encontrado</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExperimentos.map((exp) => {
-            const efeito = efeitoConfig[exp.efeito];
-            const seguranca = segurancaConfig[exp.nivelSeguranca];
-            const disponibilidade = getDisponibilidade(exp);
-            const EfeitoIcon = efeito?.icon || FlaskConical;
+          {filteredRoteiros.map((roteiro) => {
+            const seguranca = roteiro.nivelSeguranca ? segurancaConfig[roteiro.nivelSeguranca] : null;
+            const totalMateriais = roteiro.materiais.length;
+            const disponiveis = roteiro.materiais.filter((m) => m.disponivel && !m.vencido).length;
+            const disponivel = totalMateriais > 0 ? disponiveis === totalMateriais : true;
 
             return (
               <Link
-                to={`/auxiliar/experimentos/${exp.id}`}
-                key={exp.id}
+                to={`${basePath}/experimentos/${roteiro.id}`}
+                key={roteiro.id}
                 className="bg-card border-2 border-border rounded-2xl p-5 hover:shadow-lg hover:border-primary/30 transition-all group cursor-pointer"
               >
-                {/* Top badges */}
                 <div className="flex items-center justify-between mb-3">
-                  {efeito && (
-                    <span
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${efeito.color}`}
-                    >
-                      <EfeitoIcon size={14} />
-                      {efeito.label}
-                    </span>
-                  )}
                   {seguranca && (
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium border ${seguranca.color}`}
-                    >
-                      <Shield
-                        size={12}
-                        className="inline mr-1"
-                      />
+                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${seguranca.color}`}>
+                      <Shield size={14} />
                       {seguranca.label}
                     </span>
                   )}
+                  {!roteiro.publicado && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium border bg-accent text-muted-foreground">
+                      Rascunho
+                    </span>
+                  )}
+                  {roteiro.possuiPendenciaMaterial && (
+                    <span className="flex items-center gap-1 text-xs text-yellow-600">
+                      <AlertTriangle size={14} />
+                      Pendência
+                    </span>
+                  )}
                 </div>
 
-                {/* Title */}
                 <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
-                  {exp.nome}
+                  {roteiro.titulo}
                 </h3>
 
-                {/* Description */}
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {exp.descricao}
+                  {roteiro.objetivo ?? roteiro.tema ?? "Sem descrição"}
                 </p>
 
-                {/* Meta info */}
-                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-                  {exp.serie && (
-                    <span className="flex items-center gap-1">
-                      📚 {exp.serie}
-                    </span>
-                  )}
-                  {exp.tempoEstimado && (
+                <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground flex-wrap">
+                  {roteiro.disciplina && <span>📖 {roteiro.disciplina}</span>}
+                  {roteiro.tempoEstimadoMinutos && (
                     <span className="flex items-center gap-1">
                       <Clock size={14} />
-                      {exp.tempoEstimado} min
+                      {roteiro.tempoEstimadoMinutos} min
                     </span>
                   )}
-                  <span className="flex items-center gap-1">
-                    <FlaskConical size={14} />
-                    {exp.reagentesDisponiveis}/{exp.totalReagentes}
-                  </span>
+                  {totalMateriais > 0 && (
+                    <span className="flex items-center gap-1">
+                      <FlaskConical size={14} />
+                      {disponiveis}/{totalMateriais}
+                    </span>
+                  )}
                 </div>
 
-                {/* Availability */}
-                <div
-                  className={`px-3 py-2 rounded-xl border text-xs font-medium ${disponibilidade.color}`}
-                >
-                  {disponibilidade.icon} {disponibilidade.label}
-                </div>
+                {totalMateriais > 0 && (
+                  <div
+                    className={`px-3 py-2 rounded-xl border text-xs font-medium ${
+                      disponivel
+                        ? "bg-green-50 border-green-200 text-green-700"
+                        : "bg-red-50 border-red-200 text-red-700"
+                    }`}
+                  >
+                    {disponivel
+                      ? "✅ Disponível — todos os materiais em estoque"
+                      : `❌ Faltam ${totalMateriais - disponiveis} material(is)`}
+                  </div>
+                )}
               </Link>
             );
           })}

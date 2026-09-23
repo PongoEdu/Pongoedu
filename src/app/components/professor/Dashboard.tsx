@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { Users, GraduationCap, BookOpen, Gamepad2, ClipboardCheck, Calendar, AlertCircle } from "lucide-react";
 
 export function Dashboard() {
@@ -131,11 +132,11 @@ export function Dashboard() {
       <div className="mb-8">
         <h2 className="text-xl mb-4">Acesso Rápido</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <button className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group">
+          <Link to="/professor/roteiros" className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group block">
             <BookOpen className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
             <h3 className="mb-1">Criar Roteiro</h3>
             <p className="text-sm text-muted-foreground">Novo roteiro de aula</p>
-          </button>
+          </Link>
 
           <button className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group">
             <Gamepad2 className="w-8 h-8 text-secondary mb-3 group-hover:scale-110 transition-transform" />

@@ -1,51 +1,45 @@
 import { useEffect, useState } from "react";
 import { TestTube, Plus, Search, Edit, Trash2, Filter } from "lucide-react";
+import { toast } from "sonner";
 import { CadastrarReagenteModal } from "../components/reagentes/CadastrarReagenteModal";
+import { produtosApi } from "../../../lib/api/produtos";
+import { categoriasApi } from "../../../lib/api/categorias";
+import { mensagemDeErro } from "../../auth/AuthContext";
+import type { CategoriaResponse, ProdutoRequest, ProdutoResponse, StatusEstoque } from "../../../lib/api/types";
 
-interface Reagente {
-  id: number;
-  nome: string;
-  formula: string;
-  descricao: string;
-  quantidade: number;
-  quantidadeMinima: number;
-  unidade: string;
-  localizacao: string;
-  tipo: string;
-  status: string;
-}
-
-type TipoFiltro = "todos" | "REAGENTE" | "VIDRARIA" | "COLECAO_ZOOLOGICA" | "MODELO_ANATOMICO" | "OUTROS";
+type FiltroStatus = "todos" | StatusEstoque;
 
 export function ReagentesManagement() {
-  const [reagentes, setReagentes] = useState<Reagente[]>([]);
+  const [produtos, setProdutos] = useState<ProdutoResponse[]>([]);
+  const [categorias, setCategorias] = useState<CategoriaResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [tipoFiltro, setTipoFiltro] = useState<TipoFiltro>("todos");
+  const [categoriaFiltro, setCategoriaFiltro] = useState<number | "todos">("todos");
+  const [statusFiltro, setStatusFiltro] = useState<FiltroStatus>("todos");
   const [modalAberto, setModalAberto] = useState(false);
+  const [editando, setEditando] = useState<ProdutoResponse | null>(null);
 
   useEffect(() => {
-    fetchReagentes();
+    fetchDados();
   }, []);
 
-  const fetchReagentes = async () => {
+  const fetchDados = async () => {
     setLoading(true);
     try {
-      localStorage.setItem("token", "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHJpbmciLCJ1c3VhcmlvSWQiOjUsImlhdCI6MTc3NjgwMjM0MiwiZXhwIjoxNzc2ODg4NzQyfQ.tuCFbr9d0jYnNH013AbaB9f4jTIaR9pJgvCiqTVs3YHbP_lr-GR6hRoxop8BmtJJ4H4EBRvU9053nti1ISdt7w")
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/api/v1/reagentes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setReagentes(data);
+      const [produtosData, categoriasData] = await Promise.all([
+        produtosApi.listar(),
+        categoriasApi.listar(true),
+      ]);
+      setProdutos(produtosData);
+      setCategorias(categoriasData);
     } catch (err) {
-      console.error("Erro ao buscar reagentes:", err);
+      toast.error(mensagemDeErro(err, "Erro ao buscar produtos."));
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: StatusEstoque) => {
     switch (status) {
       case "DISPONIVEL":
         return { label: "Disponível", color: "bg-green-100 text-green-600 border-green-200" };
@@ -55,34 +49,55 @@ export function ReagentesManagement() {
         return { label: "Crítico", color: "bg-red-100 text-red-600 border-red-200" };
       case "ESGOTADO":
         return { label: "Esgotado", color: "bg-gray-100 text-gray-600 border-gray-200" };
-      default:
-        return { label: status, color: "bg-gray-100 text-gray-600 border-gray-200" };
     }
   };
 
-  const filteredReagentes = reagentes.filter((r) => {
+  const abrirNovo = () => {
+    setEditando(null);
+    setModalAberto(true);
+  };
+
+  const abrirEdicao = (produto: ProdutoResponse) => {
+    setEditando(produto);
+    setModalAberto(true);
+  };
+
+  const salvarProduto = async (payload: ProdutoRequest) => {
+    if (editando) {
+      await produtosApi.atualizar(editando.id, payload);
+      toast.success("Produto atualizado com sucesso.");
+    } else {
+      await produtosApi.criar(payload);
+      toast.success("Produto cadastrado com sucesso.");
+    }
+    fetchDados();
+  };
+
+  const handleRemover = async (produto: ProdutoResponse) => {
+    if (!confirm(`Remover o produto "${produto.nome}"?`)) return;
+    try {
+      await produtosApi.remover(produto.id);
+      toast.success("Produto removido (ou inativado, se houver movimentações).");
+      fetchDados();
+    } catch (err) {
+      toast.error(mensagemDeErro(err, "Erro ao remover produto."));
+    }
+  };
+
+  const filteredProdutos = produtos.filter((p) => {
     const matchesSearch =
-      r.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.formula?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.localizacao?.toLowerCase().includes(searchTerm.toLowerCase());
+      p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.localizacao ?? "").toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTipo = tipoFiltro === "todos" || r.tipo === tipoFiltro;
+    const matchesCategoria = categoriaFiltro === "todos" || p.categoria.id === categoriaFiltro;
+    const matchesStatus = statusFiltro === "todos" || p.statusEstoque === statusFiltro;
 
-    return matchesSearch && matchesTipo;
+    return matchesSearch && matchesCategoria && matchesStatus;
   });
-
-  const tipoOptions: { value: TipoFiltro; label: string }[] = [
-    { value: "todos", label: "Todos" },
-    { value: "REAGENTE", label: "Reagentes" },
-    { value: "VIDRARIA", label: "Vidrarias" },
-    { value: "COLECAO_ZOOLOGICA", label: "Coleção Zoológica" },
-    { value: "MODELO_ANATOMICO", label: "Modelos Anatômicos" },
-    { value: "OUTROS", label: "Outros" },
-  ];
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -90,73 +105,89 @@ export function ReagentesManagement() {
             <h1 className="text-3xl">Reagentes</h1>
           </div>
           <p className="text-muted-foreground">
-            Gerencie o estoque de reagentes, vidrarias e materiais do laboratório
+            Gerencie o estoque de reagentes e demais materiais do laboratório
           </p>
         </div>
         <button
-          onClick={() => setModalAberto(true)}
+          onClick={abrirNovo}
           className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
         >
           <Plus size={20} />
-          <span>Novo Reagente</span>
+          <span>Novo Produto</span>
         </button>
       </div>
 
-      {/* Filters Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        {/* Search */}
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Buscar por nome, fórmula ou localização..."
+            placeholder="Buscar por nome, código ou localização..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors"
           />
         </div>
 
-        {/* Type Filter */}
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
           <select
-            value={tipoFiltro}
-            onChange={(e) => setTipoFiltro(e.target.value as TipoFiltro)}
+            value={categoriaFiltro}
+            onChange={(e) => setCategoriaFiltro(e.target.value === "todos" ? "todos" : Number(e.target.value))}
             className="pl-10 pr-8 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer min-w-[180px]"
           >
-            {tipoOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            <option value="todos">Todas as categorias</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
               </option>
             ))}
           </select>
         </div>
+
+        <div className="relative">
+          <select
+            value={statusFiltro}
+            onChange={(e) => setStatusFiltro(e.target.value as FiltroStatus)}
+            className="pl-4 pr-8 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors appearance-none cursor-pointer min-w-[160px]"
+          >
+            <option value="todos">Todos os status</option>
+            <option value="DISPONIVEL">Disponível</option>
+            <option value="BAIXO">Baixo</option>
+            <option value="CRITICO">Crítico</option>
+            <option value="ESGOTADO">Esgotado</option>
+          </select>
+        </div>
       </div>
 
-      {/* Results Count */}
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">
-          Exibindo {filteredReagentes.length} de {reagentes.length} itens
+          Exibindo {filteredProdutos.length} de {produtos.length} itens
         </p>
       </div>
 
-      {/* Table */}
       <div className="bg-card border-2 border-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-accent border-b-2 border-border">
               <tr>
+                <th className="px-6 py-4 text-left text-sm font-medium">Código</th>
                 <th className="px-6 py-4 text-left text-sm font-medium">Nome</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Fórmula</th>
+                <th className="px-6 py-4 text-left text-sm font-medium">Categoria</th>
                 <th className="px-6 py-4 text-left text-sm font-medium">Quantidade</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Unidade</th>
                 <th className="px-6 py-4 text-left text-sm font-medium">Localização</th>
                 <th className="px-6 py-4 text-left text-sm font-medium">Status</th>
                 <th className="px-6 py-4 text-left text-sm font-medium">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {filteredReagentes.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
+                    Carregando...
+                  </td>
+                </tr>
+              ) : filteredProdutos.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
@@ -166,48 +197,42 @@ export function ReagentesManagement() {
                   </td>
                 </tr>
               ) : (
-                filteredReagentes.map((reagente) => {
-                  const status = getStatusBadge(reagente.status);
+                filteredProdutos.map((produto) => {
+                  const status = getStatusBadge(produto.statusEstoque);
                   return (
-                    <tr
-                      key={reagente.id}
-                      className="border-b border-border hover:bg-accent/50 transition-colors"
-                    >
+                    <tr key={produto.id} className="border-b border-border hover:bg-accent/50 transition-colors">
+                      <td className="px-6 py-4 font-mono text-sm text-muted-foreground">{produto.codigo}</td>
                       <td className="px-6 py-4">
-                        <span className="font-medium">{reagente.nome}</span>
+                        <span className="font-medium">{produto.nome}</span>
+                        {produto.vencido && (
+                          <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-600 border border-red-200">
+                            Vencido
+                          </span>
+                        )}
                       </td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{produto.categoria.nome}</td>
                       <td className="px-6 py-4">
-                        <span className="font-mono text-sm text-muted-foreground">
-                          {reagente.formula}
+                        <span className={produto.quantidadeEstoque === 0 ? "text-red-600 font-medium" : ""}>
+                          {produto.quantidadeEstoque} {produto.unidadeMedida.toLowerCase()}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">{produto.localizacao ?? "—"}</td>
                       <td className="px-6 py-4">
-                        <span className={reagente.quantidade === 0 ? "text-red-600 font-medium" : ""}>
-                          {reagente.quantidade}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-muted-foreground">{reagente.unidade}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-muted-foreground">{reagente.localizacao}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}
-                        >
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${status.color}`}>
                           {status.label}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           <button
+                            onClick={() => abrirEdicao(produto)}
                             className="p-2 hover:bg-accent rounded-lg transition-colors text-primary"
                             title="Editar"
                           >
                             <Edit size={16} />
                           </button>
                           <button
+                            onClick={() => handleRemover(produto)}
                             className="p-2 hover:bg-accent rounded-lg transition-colors text-red-600"
                             title="Excluir"
                           >
@@ -224,30 +249,29 @@ export function ReagentesManagement() {
         </div>
       </div>
 
-      {/* Summary Cards — usando status do back */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
         <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
           <p className="text-sm text-green-600 mb-1">Disponível</p>
           <p className="text-2xl font-bold text-green-700">
-            {reagentes.filter((r) => r.status === "DISPONIVEL").length}
+            {produtos.filter((p) => p.statusEstoque === "DISPONIVEL").length}
           </p>
         </div>
         <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
           <p className="text-sm text-yellow-600 mb-1">Baixo</p>
           <p className="text-2xl font-bold text-yellow-700">
-            {reagentes.filter((r) => r.status === "BAIXO").length}
+            {produtos.filter((p) => p.statusEstoque === "BAIXO").length}
           </p>
         </div>
         <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
           <p className="text-sm text-red-600 mb-1">Crítico</p>
           <p className="text-2xl font-bold text-red-700">
-            {reagentes.filter((r) => r.status === "CRITICO").length}
+            {produtos.filter((p) => p.statusEstoque === "CRITICO").length}
           </p>
         </div>
         <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
           <p className="text-sm text-gray-600 mb-1">Esgotado</p>
           <p className="text-2xl font-bold text-gray-700">
-            {reagentes.filter((r) => r.status === "ESGOTADO").length}
+            {produtos.filter((p) => p.statusEstoque === "ESGOTADO").length}
           </p>
         </div>
       </div>
@@ -255,22 +279,8 @@ export function ReagentesManagement() {
       <CadastrarReagenteModal
         isOpen={modalAberto}
         onClose={() => setModalAberto(false)}
-        onSave={async (reagente) => {
-          try {
-            const token = localStorage.getItem("token");
-            await fetch("http://localhost:8080/api/v1/reagentes", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify(reagente),
-            });
-            fetchReagentes();
-          } catch (err) {
-            console.error("Erro ao salvar:", err);
-          }
-        }}
+        onSave={salvarProduto}
+        produtoParaEditar={editando}
       />
     </div>
   );

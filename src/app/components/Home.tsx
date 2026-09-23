@@ -23,9 +23,6 @@ export function Home() {
                 <span className="text-[#ffffff]">Entrar</span>
               </button>
             </Link>
-            <Link to="/criar-conta">
-              <button className="px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors text-sm sm:text-base">Criar Conta</button>
-            </Link>
           </div>
         </div>
       </header>

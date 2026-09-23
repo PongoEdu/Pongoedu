@@ -1,18 +1,32 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 import { MascotLogo } from "./mascot-logo";
+import { useAuth, mensagemDeErro } from "../auth/AuthContext";
+
+const PATH_POR_PERFIL: Record<string, string> = {
+  PROFESSOR: "/professor",
+  AUXILIAR_LABORATORIO: "/auxiliar",
+};
 
 export function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [senha, setSenha] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Lógica de autenticação seria implementada aqui
-    console.log("Login attempt:", { email, password });
-    // Redireciona para o dashboard do professor após login
-    navigate("/professor");
+    setEnviando(true);
+    try {
+      const usuario = await login({ email, senha });
+      navigate(PATH_POR_PERFIL[usuario.perfil] ?? "/");
+    } catch (err) {
+      toast.error(mensagemDeErro(err, "Não foi possível entrar. Verifique suas credenciais."));
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -42,40 +56,32 @@ export function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm mb-2">
+              <label htmlFor="senha" className="block text-sm mb-2">
                 Senha
               </label>
               <input
-                id="password"
+                id="senha"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
                 required
                 className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors"
                 placeholder="••••••••"
               />
             </div>
 
-            <div className="text-right">
-              <a href="#" className="text-sm text-primary hover:underline">
-                Esqueci minha senha
-              </a>
-            </div>
-
             <button
               type="submit"
-              className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg text-base"
+              disabled={enviando}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg text-base disabled:opacity-60 disabled:hover:scale-100"
             >
-              Entrar
+              {enviando ? "Entrando..." : "Entrar"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Não tem uma conta?{" "}
-              <Link to="/criar-conta" className="text-primary hover:underline">
-                Criar conta
-              </Link>
+              Não tem uma conta? Peça ao auxiliar de laboratório para cadastrar você.
             </p>
           </div>
 
