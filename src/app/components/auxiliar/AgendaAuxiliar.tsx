@@ -38,7 +38,7 @@ export function AgendaAuxiliar() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <CalendarCheck className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl">Reservas do Laboratório</h1>
+          <h1 className="text-3xl">Agendamento</h1>
         </div>
         <p className="text-muted-foreground">Acompanhe e prepare os agendamentos de todos os professores</p>
       </div>

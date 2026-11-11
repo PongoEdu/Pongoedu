@@ -68,7 +68,7 @@ const menuItems: MenuItem[] = [
     title: "Agendamentos",
     icon: CalendarCheck,
     submenu: [
-      { title: "Reservas do Laboratório", path: "/professor/agendamentos/reservas", icon: CalendarCheck },
+      { title: "Agendamento", path: "/professor/agendamentos/reservas", icon: CalendarCheck },
       { title: "Minhas Solicitações", path: "/professor/agendamentos/solicitacoes", icon: ClipboardList },
     ],
   },

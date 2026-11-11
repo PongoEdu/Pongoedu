@@ -55,7 +55,7 @@ const menuItems: MenuItem[] = [
       { title: "Compras", path: "/auxiliar/solicitacoes/compras", icon: ShoppingCart },
       { title: "Empréstimos", path: "/auxiliar/solicitacoes/emprestimos", icon: HandCoins },
       { title: "Roteiros de Aula", path: "/auxiliar/roteiros", icon: FileText },
-      { title: "Reservas do Laboratório", path: "/auxiliar/solicitacoes/reservas", icon: CalendarCheck },
+      { title: "Agendamento", path: "/auxiliar/solicitacoes/reservas", icon: CalendarCheck },
     ],
   },
   {
