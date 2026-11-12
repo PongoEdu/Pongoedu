@@ -11,3 +11,8 @@ body {
 #root {
   height: 100%;
 }
+
+/* Tema claro fixo: o modo escuro forçado do navegador não deve inverter as cores */
+:root {
+  color-scheme: light;
+}
