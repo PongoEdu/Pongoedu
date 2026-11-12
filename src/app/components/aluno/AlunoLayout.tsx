@@ -14,7 +14,7 @@ import {
   CalendarCheck,
   Gamepad2,
 } from "lucide-react";
-import { MascotLogo } from "../mascot-logo";
+import { BrandLogo, MascotLogo } from "../mascot-logo";
 
 interface MenuItem {
   title: string;
@@ -154,21 +154,13 @@ export function AlunoLayout() {
         <div className="p-4 border-b-2 border-border flex items-center justify-between">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <MascotLogo />
-              <div>
-                <h1 className="text-primary text-lg">
-                  PongoEdu
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Aluno
-                </p>
-              </div>
+              <BrandLogo size={44} titleSize={20} subtitle="Aluno" />
             </div>
           )}
 
           {collapsed && (
             <div className="mx-auto">
-              <MascotLogo />
+              <MascotLogo size={40} />
             </div>
           )}
         </div>

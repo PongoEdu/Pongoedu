@@ -20,7 +20,7 @@ import {
   Bell,
   FileText,
 } from "lucide-react";
-import { MascotLogo } from "../mascot-logo";
+import { BrandLogo, MascotLogo } from "../mascot-logo";
 import { useAuth } from "../../auth/AuthContext";
 
 interface MenuItem {
@@ -147,18 +147,12 @@ export function ProfessorLayout() {
         <div className="p-4 border-b-2 border-border flex items-center justify-between">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <MascotLogo />
-              <div>
-                <h1 className="text-primary text-lg">PongoEdu</h1>
-                <p className="text-xs text-muted-foreground truncate max-w-[140px]">
-                  {usuario?.nome ?? "Professor"}
-                </p>
-              </div>
+              <BrandLogo size={44} titleSize={20} subtitle={usuario?.nome ?? "Professor"} className="max-w-[170px]" />
             </div>
           )}
           {collapsed && (
             <div className="mx-auto">
-              <MascotLogo />
+              <MascotLogo size={40} />
             </div>
           )}
         </div>

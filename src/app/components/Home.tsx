@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { Beaker, TestTube, Bug, Heart, FlaskConical, Shield, BookOpen, Bell, Gamepad2, Route, Trophy, Award } from "lucide-react";
-import { MascotLogo } from "./mascot-logo";
+import { BrandLogo, MascotLogo } from "./mascot-logo";
 import { FeatureCard } from "./feature-card";
 
 export function Home() {
@@ -9,13 +9,7 @@ export function Home() {
       {/* Header */}
       <header className="border-b-2 border-border bg-background">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MascotLogo />
-            <div>
-              <h1 className="text-primary text-xl sm:text-2xl md:text-3xl lg:text-4xl">PongoEdu</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Gestão Inteligente de Laboratórios</p>
-            </div>
-          </div>
+          <BrandLogo />
           <div className="flex gap-2">
             <Link to="/login">
               <button className="px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/90 transition-colors text-sm sm:text-base flex items-center gap-1.5 sm:gap-2 bg-[#ffffff]">

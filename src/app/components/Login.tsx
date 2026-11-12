@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { MascotLogo } from "./mascot-logo";
+import { BrandLogo } from "./mascot-logo";
 import { useAuth, mensagemDeErro } from "../auth/AuthContext";
 
 const PATH_POR_PERFIL: Record<string, string> = {
@@ -34,8 +34,7 @@ export function Login() {
       <div className="w-full max-w-md">
         <div className="bg-card border-2 border-border rounded-2xl p-8 shadow-xl">
           <div className="flex flex-col items-center mb-8">
-            <MascotLogo />
-            <h1 className="text-primary text-3xl mt-4">PongoEdu</h1>
+            <BrandLogo />
             <p className="text-muted-foreground mt-2">Entre na sua conta</p>
           </div>
 
