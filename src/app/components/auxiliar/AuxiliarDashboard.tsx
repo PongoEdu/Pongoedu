@@ -1,176 +1,233 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router";
-import { TestTube, Package, AlertCircle, ShoppingCart, FlaskConical, Clock } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { produtosApi } from "../../../lib/api/produtos";
+import { agendamentosApi } from "../../../lib/api/agendamentos";
+import { emprestimosApi } from "../../../lib/api/emprestimos";
+import { movimentacoesApi } from "../../../lib/api/movimentacoes";
 import { solicitacoesCompraApi } from "../../../lib/api/solicitacoesCompra";
-import { mensagemDeErro } from "../../auth/AuthContext";
-import type { ProdutoResponse, SolicitacaoCompraResponse } from "../../../lib/api/types";
+import type {
+  AgendamentoResponse,
+  EmprestimoResponse,
+  MovimentacaoResponse,
+  SituacaoEmprestimo,
+  SolicitacaoCompraResponse,
+} from "../../../lib/api/types";
+import { useAuth } from "../../auth/AuthContext";
+import imagemAuxiliar from "../../../assets/dashboard-auxiliar.png";
+import {
+  AcessoRapido,
+  AtividadesCard,
+  DashboardGrid,
+  Hero,
+  ResumoCard,
+  TabelaCard,
+  baixarCSV,
+  dataLocalISO,
+  formatarDataBR,
+  hhmm,
+  saudacao,
+  type Celula,
+  type Cor,
+} from "../dashboard/DashboardParts";
+
+const ATIVIDADE_EMPRESTIMO: Record<SituacaoEmprestimo, { rotulo: string; icone: string; cor: Cor }> = {
+  PENDENTE: { rotulo: "Empréstimo solicitado", icone: "schedule", cor: "yellow" },
+  APROVADO: { rotulo: "Empréstimo aprovado", icone: "event_available", cor: "blue" },
+  RECUSADO: { rotulo: "Empréstimo recusado", icone: "cancel", cor: "red" },
+  RETIRADO: { rotulo: "Empréstimo em andamento", icone: "swap_horiz", cor: "orange" },
+  DEVOLVIDO: { rotulo: "Empréstimo devolvido", icone: "check_circle", cor: "green" },
+  CANCELADO: { rotulo: "Empréstimo cancelado", icone: "cancel", cor: "red" },
+};
+
+const ORIGEM_LABEL: Record<string, string> = {
+  RECEBIMENTO: "Recebimento",
+  PREPARACAO_PRATICA: "Preparação de prática",
+  EMPRESTIMO: "Empréstimo",
+  DEVOLUCAO_EMPRESTIMO: "Devolução",
+  AJUSTE_MANUAL: "Ajuste manual",
+  DESCARTE: "Descarte",
+};
+
+function dataHoraBR(iso: string): string {
+  return `${formatarDataBR(iso)} às ${hhmm(iso.slice(11))}`;
+}
 
 export function AuxiliarDashboard() {
-  const [totalProdutos, setTotalProdutos] = useState(0);
-  const [estoqueBaixo, setEstoqueBaixo] = useState<ProdutoResponse[]>([]);
-  const [proximosVencimento, setProximosVencimento] = useState<ProdutoResponse[]>([]);
-  const [solicitacoesPendentes, setSolicitacoesPendentes] = useState<SolicitacaoCompraResponse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { usuario } = useAuth();
+  const [agendamentos, setAgendamentos] = useState<AgendamentoResponse[]>([]);
+  const [compras, setCompras] = useState<SolicitacaoCompraResponse[]>([]);
+  const [emprestimos, setEmprestimos] = useState<EmprestimoResponse[]>([]);
+  const [movimentacoes, setMovimentacoes] = useState<MovimentacaoResponse[]>([]);
+  const [busca, setBusca] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      produtosApi.listar(),
-      produtosApi.estoqueBaixo(),
-      produtosApi.proximosVencimento(),
-      solicitacoesCompraApi.listar("PENDENTE"),
-    ])
-      .then(([produtos, baixo, vencimento, solicitacoes]) => {
-        setTotalProdutos(produtos.length);
-        setEstoqueBaixo(baixo);
-        setProximosVencimento(vencimento);
-        setSolicitacoesPendentes(solicitacoes);
-      })
-      .catch((err) => toast.error(mensagemDeErro(err, "Erro ao carregar o painel.")))
-      .finally(() => setLoading(false));
+    const falha = (msg: string) => () => toast.error(msg);
+    agendamentosApi.listar().then(setAgendamentos).catch(falha("Não foi possível carregar os agendamentos."));
+    solicitacoesCompraApi.listar().then(setCompras).catch(falha("Não foi possível carregar as solicitações."));
+    emprestimosApi.listar().then(setEmprestimos).catch(falha("Não foi possível carregar os empréstimos."));
+    movimentacoesApi.listar().then(setMovimentacoes).catch(falha("Não foi possível carregar as movimentações."));
   }, []);
+
+  const hoje = dataLocalISO();
+  const primeiroNome = (usuario?.nome ?? "").trim().split(/\s+/).slice(0, 2).join(" ");
+
+  const resumo = useMemo(
+    () => ({
+      aPreparar: agendamentos.filter((a) => a.situacao === "AGENDADO" && a.data >= hoje).length,
+      comprasAbertas: compras.filter((c) => c.situacao === "PENDENTE").length,
+      emprestimosPendentes: emprestimos.filter((e) => e.situacao === "PENDENTE").length,
+      reservasHoje: agendamentos.filter((a) => a.data === hoje && a.situacao !== "CANCELADO").length,
+    }),
+    [agendamentos, compras, emprestimos, hoje]
+  );
+
+  const movFiltradas = movimentacoes.filter((m) => {
+    const q = busca.toLowerCase();
+    return (
+      !q ||
+      m.produtoNome.toLowerCase().includes(q) ||
+      m.usuarioNome.toLowerCase().includes(q) ||
+      (ORIGEM_LABEL[m.origem] ?? m.origem).toLowerCase().includes(q)
+    );
+  });
+
+  const linhas: Celula[][] = movFiltradas.slice(0, 6).map((m) => {
+    const entrada = m.tipo === "ENTRADA";
+    return [
+      { icone: "science", texto: m.produtoNome, cor: entrada ? "green" : "orange" },
+      m.quantidade,
+      { pill: entrada ? "Entrada" : "Saída", cor: entrada ? "green" : "orange" },
+      ORIGEM_LABEL[m.origem] ?? m.origem,
+      m.usuarioNome,
+    ];
+  });
+
+  const exportar = () =>
+    baixarCSV(
+      "movimentacoes.csv",
+      ["Produto", "Quantidade", "Tipo", "Origem", "Responsável", "Data"],
+      movFiltradas.map((m) => [
+        m.produtoNome,
+        m.quantidade,
+        m.tipo === "ENTRADA" ? "Entrada" : "Saída",
+        ORIGEM_LABEL[m.origem] ?? m.origem,
+        m.usuarioNome,
+        dataHoraBR(m.dataMovimentacao),
+      ])
+    );
+
+  const atividades = [...emprestimos]
+    .sort((a, b) => b.dataSolicitacao.localeCompare(a.dataSolicitacao))
+    .slice(0, 4)
+    .map((e) => {
+      const s = ATIVIDADE_EMPRESTIMO[e.situacao];
+      return {
+        titulo: `${s.rotulo}: ${e.produtoNome}`,
+        tempo: `${formatarDataBR(e.dataInicio)} • ${e.professorNome}`,
+        icone: s.icone,
+        cor: s.cor,
+      };
+    });
 
   return (
     <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl mb-2">Dashboard do Auxiliar</h1>
-        <p className="text-muted-foreground">Gestão completa do laboratório e estoque</p>
-      </div>
+      <Hero
+        badge="Painel do Laboratório"
+        badgeIcone="inventory_2"
+        titulo={`${saudacao()}${primeiroNome ? `, ${primeiroNome}` : ""}!`}
+        descricao="Acompanhe o estoque, prepare as práticas agendadas e responda às solicitações de professores, com tudo organizado em um único painel."
+        acaoPrimaria={{ label: "Preparar práticas", icone: "inventory_2", to: "/auxiliar/agendamentos/agenda" }}
+        acaoSecundaria={{ label: "Registrar entrada", icone: "arrow_forward", to: "/auxiliar/recebimento/entradas" }}
+        imagem={imagemAuxiliar}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Package className="w-8 h-8 text-primary" />
-            <span className="text-3xl text-primary">{loading ? "…" : totalProdutos}</span>
-          </div>
-          <h3 className="text-sm text-muted-foreground">Itens em Estoque</h3>
-        </div>
+      <DashboardGrid
+        principal={
+          <>
+            <AcessoRapido
+              itens={[
+                {
+                  titulo: "Estoque",
+                  descricao: "Consulte e gerencie os produtos",
+                  icone: "inventory_2",
+                  cor: "green",
+                  to: "/auxiliar/estoque/produtos",
+                },
+                {
+                  titulo: "Compras",
+                  descricao: "Solicitações de reposição",
+                  icone: "shopping_cart",
+                  cor: "purple",
+                  to: "/auxiliar/solicitacoes/compras",
+                },
+                {
+                  titulo: "Empréstimos",
+                  descricao: "Aprove e acompanhe pedidos",
+                  icone: "swap_horiz",
+                  cor: "blue",
+                  to: "/auxiliar/solicitacoes/emprestimos",
+                },
+              ]}
+            />
 
-        <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <AlertCircle className="w-8 h-8 text-secondary" />
-            <span className="text-3xl text-secondary">{loading ? "…" : estoqueBaixo.length}</span>
-          </div>
-          <h3 className="text-sm text-muted-foreground">Estoque Baixo</h3>
-        </div>
-
-        <Link
-          to="/auxiliar/solicitacoes/compras"
-          className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-2xl p-6 hover:border-primary/40 transition-colors"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <ShoppingCart className="w-8 h-8 text-primary" />
-            <span className="text-3xl text-primary">{loading ? "…" : solicitacoesPendentes.length}</span>
-          </div>
-          <h3 className="text-sm text-muted-foreground">Solicitações Pendentes</h3>
-        </Link>
-
-        <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/20 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <Clock className="w-8 h-8 text-secondary" />
-            <span className="text-3xl text-secondary">{loading ? "…" : proximosVencimento.length}</span>
-          </div>
-          <h3 className="text-sm text-muted-foreground">Próximos Vencimentos</h3>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl mb-4">Alertas de Estoque</h2>
-        <div className="bg-card border-2 border-border rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-accent">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm">Item</th>
-                <th className="px-6 py-3 text-left text-sm">Categoria</th>
-                <th className="px-6 py-3 text-left text-sm">Quantidade Atual</th>
-                <th className="px-6 py-3 text-left text-sm">Mínimo</th>
-                <th className="px-6 py-3 text-left text-sm">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Carregando...
-                  </td>
-                </tr>
-              ) : estoqueBaixo.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-muted-foreground">
-                    Nenhum item com estoque baixo no momento
-                  </td>
-                </tr>
-              ) : (
-                estoqueBaixo.map((produto) => (
-                  <tr key={produto.id} className="hover:bg-accent/50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <TestTube className="w-5 h-5 text-primary" />
-                        <span className="text-sm">{produto.nome}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{produto.categoria.nome}</td>
-                    <td className="px-6 py-4 text-sm">
-                      {produto.quantidadeEstoque} {produto.unidadeMedida.toLowerCase()}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      {produto.estoqueMinimo} {produto.unidadeMedida.toLowerCase()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs ${
-                          produto.statusEstoque === "CRITICO" || produto.statusEstoque === "ESGOTADO"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}
-                      >
-                        {produto.statusEstoque === "CRITICO"
-                          ? "Crítico"
-                          : produto.statusEstoque === "ESGOTADO"
-                          ? "Esgotado"
-                          : "Atenção"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-xl mb-4">Acesso Rápido</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link
-            to="/auxiliar/reagentes"
-            className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group block"
-          >
-            <Package className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="mb-1">Cadastrar Item</h3>
-            <p className="text-sm text-muted-foreground">Adicionar novo item ao estoque</p>
-          </Link>
-
-          <Link
-            to="/auxiliar/solicitacoes/compras"
-            className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group block"
-          >
-            <ShoppingCart className="w-8 h-8 text-secondary mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="mb-1">Solicitações de Compra</h3>
-            <p className="text-sm text-muted-foreground">Atender solicitações pendentes</p>
-          </Link>
-
-          <Link
-            to="/auxiliar/solicitacoes/reservas"
-            className="bg-card border-2 border-border rounded-xl p-6 hover:border-primary transition-colors text-left group block"
-          >
-            <FlaskConical className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="mb-1">Preparar Prática</h3>
-            <p className="text-sm text-muted-foreground">Separar materiais para aula</p>
-          </Link>
-        </div>
-      </div>
+            <TabelaCard
+              icone="swap_vert"
+              cor="orange"
+              titulo="Últimas movimentações"
+              colunas={["Produto", "Quantidade", "Tipo", "Origem", "Responsável"]}
+              linhas={linhas}
+              vazio="Nenhuma movimentação registrada."
+              busca={busca}
+              onBusca={setBusca}
+              placeholderBusca="Buscar por produto, origem ou responsável..."
+              onExportar={exportar}
+            />
+          </>
+        }
+        lateral={
+          <>
+            <ResumoCard
+              titulo="Resumo operacional"
+              itens={[
+                {
+                  titulo: "Práticas a preparar",
+                  subtitulo: "Aguardando preparo",
+                  valor: resumo.aPreparar,
+                  icone: "event_note",
+                  cor: "orange",
+                },
+                {
+                  titulo: "Solicitações de compra",
+                  subtitulo: "Pendentes de atendimento",
+                  valor: resumo.comprasAbertas,
+                  icone: "shopping_cart",
+                  cor: "purple",
+                },
+                {
+                  titulo: "Empréstimos pendentes",
+                  subtitulo: "Aguardando análise",
+                  valor: resumo.emprestimosPendentes,
+                  icone: "swap_horiz",
+                  cor: "blue",
+                },
+                {
+                  titulo: "Reservas do dia",
+                  subtitulo: "Hoje",
+                  valor: resumo.reservasHoje,
+                  icone: "today",
+                  cor: "green",
+                },
+              ]}
+              acao={{ label: "Ver agendamentos", icone: "arrow_forward", to: "/auxiliar/agendamentos/agenda" }}
+            />
+            <AtividadesCard
+              titulo="Atividades recentes"
+              itens={atividades}
+              link={{ label: "Ver todos os empréstimos", to: "/auxiliar/solicitacoes/emprestimos" }}
+              vazio="Nenhuma atividade recente."
+            />
+          </>
+        }
+      />
     </div>
   );
 }

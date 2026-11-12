@@ -107,6 +107,7 @@ export interface CategoriaResponse {
   nome: string;
   descricao: string | null;
   permiteEmprestimo: boolean;
+  movimentaEstoque: boolean;
   ativo: boolean;
 }
 
@@ -114,6 +115,7 @@ export interface CategoriaRequest {
   nome: string;
   descricao?: string | null;
   permiteEmprestimo: boolean;
+  movimentaEstoque: boolean;
 }
 
 // ---------- Lotes ----------
@@ -373,7 +375,6 @@ export interface SugestaoIaResponse {
 export interface AgendamentoRequest {
   laboratorioId: number;
   roteiroId: number;
-  turma?: string | null;
   data: string;
   horaInicio: string;
   horaFim: string;
@@ -388,7 +389,6 @@ export interface AgendamentoResponse {
   laboratorioNome: string;
   roteiroId: number;
   roteiroTitulo: string;
-  turma: string | null;
   data: string;
   horaInicio: string;
   horaFim: string;

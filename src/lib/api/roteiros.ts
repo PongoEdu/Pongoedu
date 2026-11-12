@@ -17,6 +17,15 @@ export const roteirosApi = {
   atualizar(id: number, payload: RoteiroRequest): Promise<RoteiroResponse> {
     return apiRequest<RoteiroResponse>(`/roteiros/${id}`, { method: "PUT", body: payload });
   },
+  favoritos(): Promise<RoteiroResponse[]> {
+    return apiRequest<RoteiroResponse[]>("/roteiros/favoritos");
+  },
+  favoritar(id: number): Promise<void> {
+    return apiRequest<void>(`/roteiros/${id}/favorito`, { method: "PUT" });
+  },
+  desfavoritar(id: number): Promise<void> {
+    return apiRequest<void>(`/roteiros/${id}/favorito`, { method: "DELETE" });
+  },
   remover(id: number): Promise<void> {
     return apiRequest<void>(`/roteiros/${id}`, { method: "DELETE" });
   },

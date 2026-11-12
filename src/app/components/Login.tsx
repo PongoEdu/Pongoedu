@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ArrowRight, Eye, EyeOff, House, Lock, Mail } from "lucide-react";
 import { BrandLogo, MascotLogo } from "./mascot-logo";
 import { useAuth, mensagemDeErro } from "../auth/AuthContext";
+import { ApiError } from "../../lib/api/http";
 
 const PATH_POR_PERFIL: Record<string, string> = {
   PROFESSOR: "/professor",
@@ -20,22 +21,35 @@ const BORDER = "#d9e1ef";
 const inputClass =
   "w-full h-[62px] rounded-[18px] border bg-white px-[54px] text-[15px] outline-none transition focus:border-[#7c3cff] focus:shadow-[0_0_0_4px_rgba(124,60,255,0.08)]";
 
+function mensagemLogin(err: unknown): string {
+  if (err instanceof ApiError) {
+    if (err.status === 0) return err.message;
+    if (err.status === 401 || (err.status === 400 && /senha/i.test(err.message))) {
+      return "E-mail ou senha incorretos. Verifique seus dados e tente novamente.";
+    }
+    if (err.status >= 500) return "O servidor encontrou um problema. Tente novamente em instantes.";
+  }
+  return mensagemDeErro(err, "Não foi possível entrar. Tente novamente.");
+}
+
 export function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErro(null);
     setEnviando(true);
     try {
       const usuario = await login({ email, senha });
       navigate(PATH_POR_PERFIL[usuario.perfil] ?? "/");
     } catch (err) {
-      toast.error(mensagemDeErro(err, "Não foi possível entrar. Verifique suas credenciais."));
+      setErro(mensagemLogin(err));
     } finally {
       setEnviando(false);
     }
@@ -98,6 +112,17 @@ export function Login() {
           </p>
 
           <form onSubmit={handleSubmit}>
+            {erro && (
+              <div
+                role="alert"
+                className="mb-6 flex items-start gap-2.5 rounded-xl border border-[#fecaca] bg-[#fff0f0] px-4 py-3 text-sm"
+                style={{ color: "#b91c1c", fontWeight: 600 }}
+              >
+                <span className="material-symbols-rounded !text-[20px]">error</span>
+                <span>{erro}</span>
+              </div>
+            )}
+
             <div className="mb-6">
               <label htmlFor="email" className="mb-2.5 block text-sm font-bold text-[#344054]">
                 E-mail
@@ -108,7 +133,10 @@ export function Login() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErro(null);
+                  }}
                   required
                   className={inputClass}
                   style={{ borderColor: BORDER }}
@@ -127,7 +155,10 @@ export function Login() {
                   id="senha"
                   type={mostrarSenha ? "text" : "password"}
                   value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
+                  onChange={(e) => {
+                    setSenha(e.target.value);
+                    setErro(null);
+                  }}
                   required
                   className={inputClass}
                   style={{ borderColor: BORDER }}

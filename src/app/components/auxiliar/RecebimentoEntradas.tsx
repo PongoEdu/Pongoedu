@@ -5,6 +5,7 @@ import { recebimentosApi } from "../../../lib/api/recebimentos";
 import { produtosApi } from "../../../lib/api/produtos";
 import { lotesApi } from "../../../lib/api/lotes";
 import { mensagemDeErro } from "../../auth/AuthContext";
+import { BarraFiltros } from "../shared/BarraFiltros";
 import type {
   ItemRecebimentoRequest,
   LoteResponse,
@@ -26,6 +27,8 @@ export function RecebimentoEntradas() {
   const [produtos, setProdutos] = useState<ProdutoResponse[]>([]);
   const [lotes, setLotes] = useState<LoteResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [busca, setBusca] = useState("");
+  const [tipoFiltro, setTipoFiltro] = useState<"todos" | TipoEntrada>("todos");
   const [modalAberto, setModalAberto] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
@@ -102,6 +105,16 @@ export function RecebimentoEntradas() {
     }
   };
 
+  const filtrados = recebimentos.filter((r) => {
+    const q = busca.toLowerCase();
+    const matchBusca =
+      !q ||
+      (r.fornecedor ?? "").toLowerCase().includes(q) ||
+      (r.numeroNotaFiscal ?? "").toLowerCase().includes(q) ||
+      r.auxiliarNome.toLowerCase().includes(q);
+    return matchBusca && (tipoFiltro === "todos" || r.tipoEntrada === tipoFiltro);
+  });
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-8">
@@ -120,6 +133,23 @@ export function RecebimentoEntradas() {
           <span>Novo Recebimento</span>
         </button>
       </div>
+
+      <BarraFiltros
+        busca={busca}
+        onBusca={setBusca}
+        placeholder="Buscar por fornecedor, nota fiscal ou responsável..."
+        filtros={[
+          {
+            valor: tipoFiltro,
+            onChange: (v) => setTipoFiltro(v as "todos" | TipoEntrada),
+            opcoes: [
+              { valor: "todos", rotulo: "Todos os tipos" },
+              { valor: "NOTA_FISCAL", rotulo: "Nota Fiscal" },
+              { valor: "CODIGO_SISTEMA", rotulo: "Código do Sistema" },
+            ],
+          },
+        ]}
+      />
 
       <div className="bg-card border-2 border-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -141,14 +171,14 @@ export function RecebimentoEntradas() {
                     Carregando...
                   </td>
                 </tr>
-              ) : recebimentos.length === 0 ? (
+              ) : filtrados.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                     Nenhum recebimento registrado
                   </td>
                 </tr>
               ) : (
-                recebimentos.map((r) => (
+                filtrados.map((r) => (
                   <tr key={r.id} className="border-b border-border hover:bg-accent/50 transition-colors">
                     <td className="px-6 py-4 text-sm">{r.dataRecebimento}</td>
                     <td className="px-6 py-4 text-sm text-muted-foreground">

@@ -72,11 +72,17 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}${buildQuery(query)}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}${buildQuery(query)}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    // Falha de rede: servidor fora do ar, CORS ou sem conexão
+    throw new ApiError(0, "Não foi possível conectar ao servidor. Tente novamente em instantes.");
+  }
 
   if (response.status === 204) {
     return undefined as T;

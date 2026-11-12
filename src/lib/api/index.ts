@@ -14,3 +14,4 @@ export { roteirosApi } from "./roteiros";
 export { agendamentosApi } from "./agendamentos";
 export { preparacoesApi } from "./preparacoes";
 export { notificacoesApi } from "./notificacoes";
+export { perfilApi } from "./perfil";

@@ -10,6 +10,7 @@ interface AuthContextValue {
   carregando: boolean;
   login: (payload: LoginRequest) => Promise<UsuarioResponse>;
   logout: () => void;
+  atualizarUsuario: (usuario: UsuarioResponse) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -40,6 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => setUnauthorizedHandler(null);
   }, [logout]);
 
+  const atualizarUsuario = useCallback((atualizado: UsuarioResponse) => {
+    localStorage.setItem(USER_KEY, JSON.stringify(atualizado));
+    setUsuario(atualizado);
+  }, []);
+
   const login = useCallback(async (payload: LoginRequest) => {
     setCarregando(true);
     try {
@@ -54,8 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ usuario, carregando, login, logout }),
-    [usuario, carregando, login, logout]
+    () => ({ usuario, carregando, login, logout, atualizarUsuario }),
+    [usuario, carregando, login, logout, atualizarUsuario]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

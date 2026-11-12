@@ -102,10 +102,10 @@ export function ReagentesManagement() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <TestTube className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl">Reagentes</h1>
+            <h1 className="text-3xl">Produtos</h1>
           </div>
           <p className="text-muted-foreground">
-            Gerencie o estoque de reagentes e demais materiais do laboratório
+            Consulte e gerencie o inventário de materiais e reagentes do laboratório
           </p>
         </div>
         <button

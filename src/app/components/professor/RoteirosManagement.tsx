@@ -190,7 +190,7 @@ export function RoteirosManagement() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl">Roteiros de Aula</h1>
+            <h1 className="text-3xl">Meus Roteiros</h1>
           </div>
           <p className="text-muted-foreground">Crie e gerencie seus roteiros de prática</p>
         </div>

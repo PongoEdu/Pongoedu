@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Beaker, TestTube, Bug, Heart, FlaskConical, Shield, BookOpen, Bell, Gamepad2, Route, Trophy, Award } from "lucide-react";
+import { Beaker, TestTube, Bug, Heart, FlaskConical, Shield, BookOpen, Bell } from "lucide-react";
 import { BrandLogo, MascotLogo } from "./mascot-logo";
 import { FeatureCard } from "./feature-card";
 
@@ -48,7 +48,7 @@ export function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-4 sm:p-6 text-center">
             <div className="text-3xl sm:text-4xl font-bold text-primary mb-1 sm:mb-2">100%</div>
-            <div className="text-foreground text-sm sm:text-base">Inventário Centralizado</div>
+            <div className="text-foreground text-sm sm:text-base">Estoque Centralizado</div>
           </div>
           <div className="bg-secondary/10 border-2 border-secondary/20 rounded-2xl p-4 sm:p-6 text-center">
             <div className="text-3xl sm:text-4xl font-bold text-secondary mb-1 sm:mb-2">70%</div>
@@ -64,7 +64,7 @@ export function Home() {
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14">
         <div className="text-center mb-8 sm:mb-10">
-          <h2 className="mb-2 sm:mb-3 px-2">Módulos de Inventário</h2>
+          <h2 className="mb-2 sm:mb-3 px-2">Módulos de Estoque</h2>
           <p className="text-muted-foreground text-sm sm:text-base px-3">Gerencie todos os materiais do seu laboratório em um só lugar</p>
         </div>
 
@@ -110,7 +110,7 @@ export function Home() {
           <FeatureCard
             icon={BookOpen}
             title="Roteiros Pedagógicos"
-            description="Vincule práticas ao inventário para planejamento eficiente"
+            description="Vincule práticas ao estoque para planejamento eficiente"
             color="green"
           />
           <FeatureCard
@@ -125,101 +125,6 @@ export function Home() {
             description="Rastreie cada movimentação com responsável e finalidade"
             color="green"
           />
-        </div>
-      </section>
-
-      {/* Student Gamification Section */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14">
-        <div className="text-center mb-8 sm:mb-10">
-          <h2 className="mb-2 sm:mb-3 px-2 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Portal do Aluno Gamificado</h2>
-          <p className="text-muted-foreground text-sm sm:text-base px-3">Aprendizado interativo com trilhas personalizadas e rankings motivadores</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-10">
-          {/* Left Card - Trilhas e Jogos */}
-          <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 border-2 border-secondary/30 rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-3 mb-4 sm:mb-5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-secondary/20 flex items-center justify-center">
-                <Gamepad2 className="w-6 h-6 sm:w-7 sm:h-7 text-secondary" />
-              </div>
-              <h3 className="text-secondary">Atividades em Formato de Jogos</h3>
-            </div>
-            <p className="text-foreground/80 mb-4 text-sm sm:text-base">
-              Professores criam trilhas de aprendizado moldadas para cada aula, transformando práticas de laboratório em desafios interativos e divertidos.
-            </p>
-            <div className="flex items-start gap-2 mb-3">
-              <Route className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-secondary text-sm sm:text-base">Trilhas Personalizadas</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Sequências de atividades adaptadas a cada aula e conteúdo</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Award className="w-5 h-5 text-secondary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-secondary text-sm sm:text-base">Desafios Progressivos</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Níveis que evoluem conforme o domínio do conteúdo</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Card - Rankings e Selos */}
-          <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-3 mb-4 sm:mb-5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Trophy className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
-              </div>
-              <h3 className="text-primary">Rankings e Conquistas</h3>
-            </div>
-            <p className="text-foreground/80 mb-4 text-sm sm:text-base">
-              Sistema de pontuação e selos motiva os alunos a se dedicarem mais nas atividades práticas e teóricas do laboratório.
-            </p>
-            <div className="flex items-start gap-2 mb-3">
-              <Trophy className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-primary text-sm sm:text-base">Rankings por Turma</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Competição saudável entre alunos com placar em tempo real</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <Award className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-primary text-sm sm:text-base">Selos de Conquista</p>
-                <p className="text-xs sm:text-sm text-muted-foreground">Badges especiais por desempenho e conclusão de trilhas</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Example Badges */}
-        <div className="bg-card border-2 border-border rounded-2xl p-6 sm:p-8">
-          <h3 className="text-center mb-5 sm:mb-6">Exemplos de Selos de Conquista</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
-                <FlaskConical className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <p className="text-xs sm:text-sm">Químico Mestre</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-secondary to-secondary/60 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
-                <Bug className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <p className="text-xs sm:text-sm">Explorador Bio</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
-                <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <p className="text-xs sm:text-sm">Top 3 da Turma</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-secondary to-secondary/60 flex items-center justify-center mx-auto mb-2 sm:mb-3 shadow-lg">
-                <Award className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <p className="text-xs sm:text-sm">100% Completo</p>
-            </div>
-          </div>
         </div>
       </section>
 

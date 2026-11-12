@@ -6,7 +6,7 @@ import { categoriasApi } from "../../../lib/api/categorias";
 import { mensagemDeErro } from "../../auth/AuthContext";
 import type { CategoriaResponse, ProdutoResponse, StatusEstoque } from "../../../lib/api/types";
 
-export function ReagentesViewer() {
+export function ProdutosEstoque() {
   const [produtos, setProdutos] = useState<ProdutoResponse[]>([]);
   const [categorias, setCategorias] = useState<CategoriaResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,10 +60,10 @@ export function ReagentesViewer() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <TestTube className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl">Reagentes</h1>
+            <h1 className="text-3xl">Produtos</h1>
           </div>
           <p className="text-muted-foreground">
-            Consulte o catálogo de reagentes e materiais disponíveis no laboratório
+            Consulte todos os produtos disponíveis no estoque do laboratório
           </p>
         </div>
       </div>
@@ -167,32 +167,6 @@ export function ReagentesViewer() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-        <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-          <p className="text-sm text-green-600 mb-1">Disponível</p>
-          <p className="text-2xl font-bold text-green-700">
-            {produtos.filter((p) => p.statusEstoque === "DISPONIVEL").length}
-          </p>
-        </div>
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-          <p className="text-sm text-yellow-600 mb-1">Baixo</p>
-          <p className="text-2xl font-bold text-yellow-700">
-            {produtos.filter((p) => p.statusEstoque === "BAIXO").length}
-          </p>
-        </div>
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
-          <p className="text-sm text-red-600 mb-1">Crítico</p>
-          <p className="text-2xl font-bold text-red-700">
-            {produtos.filter((p) => p.statusEstoque === "CRITICO").length}
-          </p>
-        </div>
-        <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
-          <p className="text-sm text-gray-600 mb-1">Esgotado</p>
-          <p className="text-2xl font-bold text-gray-700">
-            {produtos.filter((p) => p.statusEstoque === "ESGOTADO").length}
-          </p>
-        </div>
-      </div>
     </div>
   );
 }

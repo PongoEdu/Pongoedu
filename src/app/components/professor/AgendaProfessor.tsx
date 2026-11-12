@@ -6,6 +6,7 @@ import { agendamentosApi } from "../../../lib/api/agendamentos";
 import { laboratoriosApi } from "../../../lib/api/laboratorios";
 import { roteirosApi } from "../../../lib/api/roteiros";
 import { mensagemDeErro } from "../../auth/AuthContext";
+import { AlternadorVisao, CalendarioSemanal, ModalAgendamento } from "../agenda/CalendarioSemanal";
 import type {
   AgendamentoResponse,
   DisponibilidadeResponse,
@@ -27,6 +28,8 @@ export function AgendaProfessor() {
   const [laboratorios, setLaboratorios] = useState<LaboratorioResponse[]>([]);
   const [roteiros, setRoteiros] = useState<RoteiroResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visao, setVisao] = useState<"calendario" | "lista">("calendario");
+  const [selecionado, setSelecionado] = useState<AgendamentoResponse | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [disponibilidade, setDisponibilidade] = useState<DisponibilidadeResponse | null>(null);
@@ -34,7 +37,6 @@ export function AgendaProfessor() {
   const [form, setForm] = useState({
     laboratorioId: 0,
     roteiroId: Number(searchParams.get("roteiroId")) || 0,
-    turma: "",
     data: new Date().toISOString().slice(0, 10),
     horaInicio: "08:00",
     horaFim: "10:00",
@@ -89,7 +91,6 @@ export function AgendaProfessor() {
     setForm({
       laboratorioId: laboratorios[0]?.id ?? 0,
       roteiroId: Number(searchParams.get("roteiroId")) || 0,
-      turma: "",
       data: new Date().toISOString().slice(0, 10),
       horaInicio: "08:00",
       horaFim: "10:00",
@@ -108,7 +109,6 @@ export function AgendaProfessor() {
       await agendamentosApi.criar({
         laboratorioId: form.laboratorioId,
         roteiroId: form.roteiroId,
-        turma: form.turma || null,
         data: form.data,
         horaInicio: `${form.horaInicio}:00`,
         horaFim: `${form.horaFim}:00`,
@@ -145,6 +145,8 @@ export function AgendaProfessor() {
           </div>
           <p className="text-muted-foreground">Acompanhe e organize seus agendamentos de práticas</p>
         </div>
+        <div className="flex flex-wrap items-center gap-3">
+        <AlternadorVisao valor={visao} onChange={setVisao} />
         <button
           onClick={abrirNovo}
           className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:scale-105 transition-transform shadow-lg flex items-center gap-2"
@@ -152,68 +154,93 @@ export function AgendaProfessor() {
           <Plus size={20} />
           <span>Agendar Prática</span>
         </button>
-      </div>
-
-      <div className="bg-card border-2 border-border rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-accent border-b-2 border-border">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium">Data</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Horário</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Laboratório</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Roteiro</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Turma</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Situação</th>
-                <th className="px-6 py-4 text-left text-sm font-medium">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                    Carregando...
-                  </td>
-                </tr>
-              ) : agendamentos.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                    Nenhum agendamento encontrado
-                  </td>
-                </tr>
-              ) : (
-                agendamentos.map((a) => (
-                  <tr key={a.id} className="border-b border-border hover:bg-accent/50 transition-colors">
-                    <td className="px-6 py-4 text-sm">{a.data}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {a.horaInicio} – {a.horaFim}
-                    </td>
-                    <td className="px-6 py-4 text-sm">{a.laboratorioNome}</td>
-                    <td className="px-6 py-4 text-sm">{a.roteiroTitulo}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{a.turma ?? "—"}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${situacaoBadge[a.situacao].color}`}>
-                        {situacaoBadge[a.situacao].label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {a.situacao === "AGENDADO" && (
-                        <button
-                          onClick={() => cancelar(a.id)}
-                          className="p-2 hover:bg-accent rounded-lg transition-colors text-red-600"
-                          title="Cancelar"
-                        >
-                          <XCircle size={16} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
+
+      {visao === "calendario" ? (
+        <CalendarioSemanal agendamentos={agendamentos} carregando={loading} onSelecionar={setSelecionado} />
+      ) : (
+        <div className="bg-card border-2 border-border rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-accent border-b-2 border-border">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Data</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Horário</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Laboratório</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Roteiro</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Situação</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                      Carregando...
+                    </td>
+                  </tr>
+                ) : agendamentos.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                      Nenhum agendamento encontrado
+                    </td>
+                  </tr>
+                ) : (
+                  agendamentos.map((a) => (
+                    <tr key={a.id} className="border-b border-border hover:bg-accent/50 transition-colors">
+                      <td className="px-6 py-4 text-sm">{a.data}</td>
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                        {a.horaInicio} – {a.horaFim}
+                      </td>
+                      <td className="px-6 py-4 text-sm">{a.laboratorioNome}</td>
+                      <td className="px-6 py-4 text-sm">{a.roteiroTitulo}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${situacaoBadge[a.situacao].color}`}>
+                          {situacaoBadge[a.situacao].label}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {a.situacao === "AGENDADO" && (
+                          <button
+                            onClick={() => cancelar(a.id)}
+                            className="p-2 hover:bg-accent rounded-lg transition-colors text-red-600"
+                            title="Cancelar"
+                          >
+                            <XCircle size={16} />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {selecionado && (
+        <ModalAgendamento
+          agendamento={selecionado}
+          onFechar={() => setSelecionado(null)}
+          acoes={
+            selecionado.situacao === "AGENDADO" && (
+              <button
+                onClick={async () => {
+                  const id = selecionado.id;
+                  setSelecionado(null);
+                  await cancelar(id);
+                }}
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-[#ff304f] px-5 text-[13px] text-[#ff304f] hover:bg-[#fff0f0]"
+                style={{ fontWeight: 600 }}
+              >
+                Cancelar agendamento
+              </button>
+            )
+          }
+        />
+      )}
 
       {modalAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -261,16 +288,6 @@ export function AgendaProfessor() {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Turma</label>
-                <input
-                  type="text"
-                  value={form.turma}
-                  onChange={(e) => setForm((p) => ({ ...p, turma: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background focus:outline-none focus:border-primary transition-colors"
-                />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
