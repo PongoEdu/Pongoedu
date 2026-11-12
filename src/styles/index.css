@@ -14,5 +14,10 @@ body {
 
 /* Tema claro fixo: o modo escuro forçado do navegador não deve inverter as cores */
 :root {
-  color-scheme: light;
+  color-scheme: only light;
+}
+
+html {
+  color-scheme: only light;
+  background-color: #ffffff;
 }
