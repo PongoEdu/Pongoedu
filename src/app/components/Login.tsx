@@ -12,15 +12,15 @@ const PATH_POR_PERFIL: Record<string, string> = {
   AUXILIAR_LABORATORIO: "/auxiliar",
 };
 
-const GREEN = "#08b347";
-const PURPLE = "#7c3cff";
-const BLUE = "#2878ff";
+const GREEN = "var(--green)";
+const PURPLE = "var(--purple)";
+const BLUE = "var(--blue)";
 const DARK = "#111827";
 const MUTED = "#74829c";
 const BORDER = "#d9e1ef";
 
 const inputClass =
-  "w-full h-[62px] rounded-[18px] border bg-white px-[54px] text-[15px] outline-none transition focus:border-[#7c3cff] focus:shadow-[0_0_0_4px_rgba(124,60,255,0.08)]";
+  "w-full h-[62px] rounded-[18px] border bg-white px-[54px] text-[15px] outline-none transition focus:border-brand-purple focus:shadow-[0_0_0_4px_rgba(124,60,255,0.08)]";
 
 function mensagemLogin(err: unknown): string {
   if (err instanceof ApiError) {
@@ -57,12 +57,12 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-[#f7f7fb]">
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-page-bg">
       {/* Topbar */}
-      <header className="sticky top-0 z-50 border-b border-[#e8edf5] bg-white/95 backdrop-blur-[14px]">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-5 px-4 py-5 md:min-h-[72px] md:flex-row md:justify-between md:py-0">
+      <header className="sticky top-0 z-50 border-b border-brand-line bg-white/95 backdrop-blur-[14px]">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-5 px-3 py-5 sm:px-4 md:flex-row md:justify-between md:py-3">
           <Link to="/" className="no-underline">
-            <BrandLogo subtitle="Gestão de Laboratórios" />
+            <BrandLogo subtitle="Laboratórios Educacionais" />
           </Link>
 
           <Link
@@ -200,14 +200,14 @@ export function Login() {
       </main>
 
       {/* Rodapé */}
-      <footer className="border-t border-[#e8edf5] bg-white">
+      <footer className="border-t border-brand-line bg-white">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-3 px-4 py-5 text-center md:h-[100px] md:flex-row md:justify-between md:py-0 md:text-left">
           <div>
             <strong className="text-xl" style={{ color: PURPLE }}>
               <span style={{ color: GREEN }}>Pongo</span>Edu
             </strong>
             <p className="mt-1 text-[13px]" style={{ color: MUTED }}>
-              Gestão de Laboratórios
+              Laboratórios Educacionais
             </p>
           </div>
           <small className="text-sm" style={{ color: MUTED }}>

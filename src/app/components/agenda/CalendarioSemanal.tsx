@@ -12,9 +12,9 @@ type CorEvento = "yellow" | "blue" | "green" | "red";
 
 const ESTILO: Record<CorEvento, { bg: string; borda: string; texto: string }> = {
   yellow: { bg: "#fef9c3", borda: "#ca8a04", texto: "#854d0e" },
-  blue: { bg: "#dbeafe", borda: "#2878ff", texto: "#1e40af" },
-  green: { bg: "#d1fadf", borda: "#08b347", texto: "#065f46" },
-  red: { bg: "#fee2e2", borda: "#ff304f", texto: "#991b1b" },
+  blue: { bg: "#dbeafe", borda: "var(--blue)", texto: "#1e40af" },
+  green: { bg: "#d1fadf", borda: "var(--green)", texto: "#065f46" },
+  red: { bg: "#fee2e2", borda: "var(--red)", texto: "#991b1b" },
 };
 
 export const SITUACAO_AGENDA: Record<SituacaoAgendamento, { rotulo: string; cor: CorEvento; icone: string }> = {
@@ -98,9 +98,9 @@ export function CalendarioSemanal({
   const mostrarAgora = offset === 0 && agora.getHours() >= HORA_INICIO && agora.getHours() < HORA_FIM;
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-[#e4e9f3] bg-white">
+    <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white">
       {/* Barra superior */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e4e9f3] px-4 py-[18px] md:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-line px-4 py-[18px] md:px-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[17px]" style={{ fontWeight: 700 }}>
             Agenda da semana
@@ -108,24 +108,24 @@ export function CalendarioSemanal({
           <button
             onClick={() => setOffset((o) => o - 1)}
             aria-label="Semana anterior"
-            className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-[#e4e9f3] bg-[#f5f7fb] text-[#667085] hover:bg-[#edf0f8]"
+            className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-brand-line bg-[#f5f7fb] text-brand-muted hover:bg-[#edf0f8]"
           >
             <span className="material-symbols-rounded !text-[18px]">chevron_left</span>
           </button>
           <button
             onClick={() => setOffset((o) => o + 1)}
             aria-label="Próxima semana"
-            className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-[#e4e9f3] bg-[#f5f7fb] text-[#667085] hover:bg-[#edf0f8]"
+            className="flex h-[30px] w-[30px] items-center justify-center rounded-lg border border-brand-line bg-[#f5f7fb] text-brand-muted hover:bg-[#edf0f8]"
           >
             <span className="material-symbols-rounded !text-[18px]">chevron_right</span>
           </button>
-          <span className="ml-1 text-[13px] text-[#667085]" style={{ fontWeight: 600 }}>
+          <span className="ml-1 text-[13px] text-brand-muted" style={{ fontWeight: 600 }}>
             {intervaloSemana(dias)}
           </span>
           {offset !== 0 && (
             <button
               onClick={() => setOffset(0)}
-              className="ml-1 rounded-lg border border-[#e4e9f3] px-2.5 py-1 text-xs text-[#7c3cff] hover:bg-[#f3eeff]"
+              className="ml-1 rounded-lg border border-brand-line px-2.5 py-1 text-xs text-brand-purple hover:bg-[#f3eeff]"
               style={{ fontWeight: 700 }}
             >
               Hoje
@@ -136,7 +136,7 @@ export function CalendarioSemanal({
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex flex-wrap items-center gap-3">
             {Object.values(SITUACAO_AGENDA).map((s) => (
-              <span key={s.rotulo} className="inline-flex items-center gap-1.5 text-xs text-[#667085]" style={{ fontWeight: 600 }}>
+              <span key={s.rotulo} className="inline-flex items-center gap-1.5 text-xs text-brand-muted" style={{ fontWeight: 600 }}>
                 <span
                   className="h-2.5 w-2.5 rounded-[3px]"
                   style={{ background: ESTILO[s.cor].bg, borderLeft: `3px solid ${ESTILO[s.cor].borda}` }}
@@ -147,7 +147,7 @@ export function CalendarioSemanal({
           </div>
           <span
             className="rounded-full px-3.5 py-[5px] text-xs"
-            style={{ background: "#ede8ff", color: "#7c3cff", fontWeight: 700 }}
+            style={{ background: "#ede8ff", color: "var(--purple)", fontWeight: 700 }}
           >
             {agendamentos.length} reserva(s)
           </span>
@@ -157,21 +157,21 @@ export function CalendarioSemanal({
       <div className="overflow-x-auto">
         <div className="min-w-[720px]">
           {/* Cabeçalho dos dias */}
-          <div className="flex border-b border-[#e4e9f3]">
-            <div className="w-[60px] shrink-0 border-r border-[#e4e9f3]" />
+          <div className="flex border-b border-brand-line">
+            <div className="w-[60px] shrink-0 border-r border-brand-line" />
             {dias.map((d, i) => {
               const hoje = dataISO(d) === hojeStr;
               return (
-                <div key={i} className="flex flex-1 flex-col items-center border-l border-[#e4e9f3] py-2.5 first:border-l-0">
-                  <span className="text-[11px] uppercase tracking-[0.4px] text-[#667085]" style={{ fontWeight: 600 }}>
+                <div key={i} className="flex flex-1 flex-col items-center border-l border-brand-line py-2.5 first:border-l-0">
+                  <span className="text-[11px] uppercase tracking-[0.4px] text-brand-muted" style={{ fontWeight: 600 }}>
                     {DIAS[i]}
                   </span>
                   <span
                     className="mt-1 flex h-[30px] w-[30px] items-center justify-center rounded-full text-sm"
                     style={{
                       fontWeight: 700,
-                      background: hoje ? "#08b347" : "transparent",
-                      color: hoje ? "#fff" : "#101828",
+                      background: hoje ? "var(--green)" : "transparent",
+                      color: hoje ? "#fff" : "var(--dark)",
                     }}
                   >
                     {String(d.getDate()).padStart(2, "0")}
@@ -184,11 +184,11 @@ export function CalendarioSemanal({
           {/* Corpo */}
           <div>
             <div className="relative flex" style={{ height: horas.length * PX_POR_HORA }}>
-              <div className="relative w-[60px] shrink-0 border-r border-[#e4e9f3]">
+              <div className="relative w-[60px] shrink-0 border-r border-brand-line">
                 {horas.map((h) => (
                   <div
                     key={h}
-                    className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-[10px] text-[#667085]"
+                    className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-[10px] text-brand-muted"
                     style={{ top: (h - HORA_INICIO) * PX_POR_HORA, fontWeight: 600 }}
                   >
                     {String(h).padStart(2, "0")}:00
@@ -202,9 +202,9 @@ export function CalendarioSemanal({
                 return (
                   <div
                     key={i}
-                    className="relative flex-1 border-l border-[#e4e9f3]"
+                    className="relative flex-1 border-l border-brand-line"
                     style={{
-                      backgroundImage: `repeating-linear-gradient(to bottom, #e4e9f3 0, #e4e9f3 1px, transparent 1px, transparent ${PX_POR_HORA}px)`,
+                      backgroundImage: `repeating-linear-gradient(to bottom, var(--line) 0, var(--line) 1px, transparent 1px, transparent ${PX_POR_HORA}px)`,
                     }}
                   >
                     {doDia.map((a) => {
@@ -252,11 +252,11 @@ export function CalendarioSemanal({
                 <>
                   <div
                     className="pointer-events-none absolute right-0 z-[3] h-0.5"
-                    style={{ left: 60, top: topAgora, background: "#08b347" }}
+                    style={{ left: 60, top: topAgora, background: "var(--green)" }}
                   />
                   <div
                     className="pointer-events-none absolute z-[4] h-2.5 w-2.5 rounded-full"
-                    style={{ left: 56, top: topAgora - 5, background: "#08b347" }}
+                    style={{ left: 56, top: topAgora - 5, background: "var(--green)" }}
                   />
                 </>
               )}
@@ -265,7 +265,7 @@ export function CalendarioSemanal({
         </div>
       </div>
 
-      {carregando && <div className="border-t border-[#e4e9f3] p-3 text-center text-sm text-[#667085]">Carregando...</div>}
+      {carregando && <div className="border-t border-brand-line p-3 text-center text-sm text-brand-muted">Carregando...</div>}
     </div>
   );
 }
@@ -282,7 +282,7 @@ export function AlternadorVisao({
     { id: "lista", rotulo: "Lista", icone: "list" },
   ];
   return (
-    <div className="inline-flex rounded-xl border border-[#e4e9f3] bg-white p-1">
+    <div className="inline-flex rounded-xl border border-brand-line bg-white p-1">
       {itens.map((i) => (
         <button
           key={i.id}
@@ -290,8 +290,8 @@ export function AlternadorVisao({
           className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] transition-colors"
           style={{
             fontWeight: 700,
-            background: valor === i.id ? "#7c3cff" : "transparent",
-            color: valor === i.id ? "#fff" : "#667085",
+            background: valor === i.id ? "var(--purple)" : "transparent",
+            color: valor === i.id ? "#fff" : "var(--muted-text)",
           }}
         >
           <span className="material-symbols-rounded !text-[18px]">{i.icone}</span>
@@ -318,7 +318,7 @@ export function ModalAgendamento({
   const [a, m, d] = agendamento.data.split("-");
   const campo = (rotulo: string, valor: React.ReactNode) => (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[11px] uppercase tracking-[0.4px] text-[#667085]" style={{ fontWeight: 700 }}>
+      <span className="text-[11px] uppercase tracking-[0.4px] text-brand-muted" style={{ fontWeight: 700 }}>
         {rotulo}
       </span>
       <span className="text-sm" style={{ fontWeight: 600 }}>
@@ -330,14 +330,14 @@ export function ModalAgendamento({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onFechar} />
       <div className="relative w-full max-w-lg rounded-[20px] bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#e4e9f3] px-6 py-5">
+        <div className="flex items-center justify-between border-b border-brand-line px-6 py-5">
           <span className="text-base" style={{ fontWeight: 800 }}>
             {agendamento.professorNome}
           </span>
           <button
             onClick={onFechar}
             aria-label="Fechar"
-            className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#f3f4f6] text-[#667085] hover:bg-[#e8edf5]"
+            className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-[#f3f4f6] text-brand-muted hover:bg-brand-line"
           >
             <span className="material-symbols-rounded !text-[18px]">close</span>
           </button>
@@ -360,11 +360,11 @@ export function ModalAgendamento({
             <div className="col-span-2">{campo("Observações", agendamento.observacao)}</div>
           )}
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-[#e4e9f3] px-6 py-4">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-brand-line px-6 py-4">
           {acoes}
           <button
             onClick={onFechar}
-            className="h-[42px] rounded-xl border border-[#e4e9f3] px-5 text-[13px] text-[#667085] hover:bg-[#f5f7fa]"
+            className="h-[42px] rounded-xl border border-brand-line px-5 text-[13px] text-brand-muted hover:bg-[#f5f7fa]"
             style={{ fontWeight: 600 }}
           >
             Fechar

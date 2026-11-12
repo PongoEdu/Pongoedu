@@ -129,7 +129,7 @@ export function AgendaAuxiliar() {
               <Link
                 to={`/auxiliar/agendamentos/${selecionado.id}/preparar`}
                 className="inline-flex h-[42px] items-center gap-2 rounded-xl px-5 text-[13px] text-white no-underline"
-                style={{ background: "#08b347", fontWeight: 700 }}
+                style={{ background: "var(--green)", fontWeight: 700 }}
               >
                 <ClipboardCheck size={16} />
                 {selecionado.situacao === "AGENDADO" ? "Preparar prática" : "Ver preparação"}

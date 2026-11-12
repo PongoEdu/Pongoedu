@@ -1,6 +1,17 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* ── Paleta do guia de estilo PongoEdu (fonte única das cores da marca) ── */
+  --green: #08b347;
+  --purple: #7c3cff;
+  --blue: #2878ff;
+  --orange: #ff7a1a;
+  --red: #ff304f;
+  --dark: #101828;
+  --muted-text: #667085;
+  --line: #e4e9f3;
+  --page-bg: #f7f7fb;
+
   --font-size: 16px;
   --background: #ffffff;
   --foreground: #101828;
@@ -8,9 +19,9 @@
   --card-foreground: #101828;
   --popover: #ffffff;
   --popover-foreground: #101828;
-  --primary: #08b347;
+  --primary: var(--green);
   --primary-foreground: #ffffff;
-  --secondary: #7c3cff;
+  --secondary: var(--purple);
   --secondary-foreground: #ffffff;
   --muted: #f5f6fa;
   --muted-foreground: #667085;
@@ -48,9 +59,9 @@
   --card-foreground: #ffffff;
   --popover: #2a2a2a;
   --popover-foreground: #ffffff;
-  --primary: #58cc02;
+  --primary: var(--green);
   --primary-foreground: #ffffff;
-  --secondary: #7c3aed;
+  --secondary: var(--purple);
   --secondary-foreground: #ffffff;
   --muted: #3c3c3c;
   --muted-foreground: #a0a0a0;
@@ -79,6 +90,15 @@
 }
 
 @theme inline {
+  --color-brand-green: var(--green);
+  --color-brand-purple: var(--purple);
+  --color-brand-blue: var(--blue);
+  --color-brand-orange: var(--orange);
+  --color-brand-red: var(--red);
+  --color-brand-dark: var(--dark);
+  --color-brand-muted: var(--muted-text);
+  --color-brand-line: var(--line);
+  --color-page-bg: var(--page-bg);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

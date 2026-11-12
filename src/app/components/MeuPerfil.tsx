@@ -9,10 +9,10 @@ const PERFIL_LABEL: Record<string, string> = {
 };
 
 const inputClass =
-  "w-full h-[46px] rounded-xl border bg-white px-3.5 text-sm outline-none transition focus:border-[#7c3cff] focus:shadow-[0_0_0_3px_rgba(124,60,255,0.08)]";
+  "w-full h-[46px] rounded-xl border bg-white px-3.5 text-sm outline-none transition focus:border-brand-purple focus:shadow-[0_0_0_3px_rgba(124,60,255,0.08)]";
 const labelClass = "mb-1.5 block text-[11px] font-extrabold uppercase tracking-wide text-[#344054]";
 const readOnlyClass =
-  "flex h-[46px] items-center rounded-xl border border-[#e4e9f3] bg-[#f8f9ff] px-3.5 text-sm text-[#667085]";
+  "flex h-[46px] items-center rounded-xl border border-brand-line bg-[#f8f9ff] px-3.5 text-sm text-brand-muted";
 
 function SenhaInput({
   id,
@@ -111,16 +111,16 @@ export function MeuPerfil() {
     <div className="max-w-[760px] p-6">
       <div className="mb-6">
         <h1 className="mb-1 text-[24px] font-extrabold tracking-tight">Meu Perfil</h1>
-        <p className="text-sm text-[#667085]">Gerencie seus dados de acesso ao PongoEdu</p>
+        <p className="text-sm text-brand-muted">Gerencie seus dados de acesso ao PongoEdu</p>
       </div>
 
       {/* Dados pessoais */}
       <form
         onSubmit={salvarNome}
-        className="mb-5 flex flex-col gap-4 rounded-[18px] border border-[#e4e9f3] bg-white p-7"
+        className="mb-5 flex flex-col gap-4 rounded-[18px] border border-brand-line bg-white p-7"
       >
         <h2 className="m-0 flex items-center gap-2 text-[15px] font-extrabold">
-          <span className="material-symbols-rounded !text-[19px]" style={{ color: "#7c3cff" }}>
+          <span className="material-symbols-rounded !text-[19px]" style={{ color: "var(--purple)" }}>
             person
           </span>
           Dados pessoais
@@ -129,13 +129,13 @@ export function MeuPerfil() {
         <div className="flex items-center gap-5">
           <div
             className="flex h-[72px] w-[72px] shrink-0 select-none items-center justify-center rounded-full text-[32px]"
-            style={{ background: "linear-gradient(135deg, #ede8ff, #d1e8ff)", color: "#7c3cff", fontWeight: 800 }}
+            style={{ background: "linear-gradient(135deg, #ede8ff, #d1e8ff)", color: "var(--purple)", fontWeight: 800 }}
           >
             {inicial}
           </div>
           <div className="min-w-0">
             <strong className="block truncate text-lg">{usuario?.nome}</strong>
-            <small className="text-sm text-[#667085]">{perfilLabel}</small>
+            <small className="text-sm text-brand-muted">{perfilLabel}</small>
           </div>
         </div>
 
@@ -170,7 +170,7 @@ export function MeuPerfil() {
             type="submit"
             disabled={salvandoNome || nome.trim() === usuario?.nome}
             className="inline-flex h-11 items-center gap-2 rounded-xl border-0 px-6 text-sm text-white transition disabled:opacity-50"
-            style={{ background: "#7c3cff", fontWeight: 700 }}
+            style={{ background: "var(--purple)", fontWeight: 700 }}
           >
             <span className="material-symbols-rounded !text-[18px]">save</span>
             {salvandoNome ? "Salvando..." : "Salvar alterações"}
@@ -181,15 +181,15 @@ export function MeuPerfil() {
       {/* Senha */}
       <form
         onSubmit={salvarSenha}
-        className="flex flex-col gap-4 rounded-[18px] border border-[#e4e9f3] bg-white p-7"
+        className="flex flex-col gap-4 rounded-[18px] border border-brand-line bg-white p-7"
       >
         <h2 className="m-0 flex items-center gap-2 text-[15px] font-extrabold">
-          <span className="material-symbols-rounded !text-[19px]" style={{ color: "#7c3cff" }}>
+          <span className="material-symbols-rounded !text-[19px]" style={{ color: "var(--purple)" }}>
             lock
           </span>
           Alterar senha
         </h2>
-        <p className="m-0 text-[13px] text-[#667085]">Use pelo menos 6 caracteres.</p>
+        <p className="m-0 text-[13px] text-brand-muted">Use pelo menos 6 caracteres.</p>
 
         <div>
           <label htmlFor="senha-atual" className={labelClass}>
@@ -223,7 +223,7 @@ export function MeuPerfil() {
             type="submit"
             disabled={salvandoSenha || !senhaAtual || !novaSenha || !confirmarSenha}
             className="inline-flex h-11 items-center gap-2 rounded-xl border-0 px-6 text-sm text-white transition disabled:opacity-50"
-            style={{ background: "#7c3cff", fontWeight: 700 }}
+            style={{ background: "var(--purple)", fontWeight: 700 }}
           >
             <span className="material-symbols-rounded !text-[18px]">check</span>
             {salvandoSenha ? "Salvando..." : "Alterar senha"}

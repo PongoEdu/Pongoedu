@@ -5,12 +5,12 @@ import { Link } from "react-router";
 export type Cor = "green" | "purple" | "blue" | "orange" | "yellow" | "red";
 
 export const COR_TEXTO: Record<Cor, string> = {
-  green: "#08b347",
-  purple: "#7c3cff",
-  blue: "#2878ff",
-  orange: "#ff7a1a",
+  green: "var(--green)",
+  purple: "var(--purple)",
+  blue: "var(--blue)",
+  orange: "var(--orange)",
   yellow: "#d97706",
-  red: "#ff304f",
+  red: "var(--red)",
 };
 
 export const COR_FUNDO: Record<Cor, string> = {
@@ -81,11 +81,11 @@ export function Hero({
   imagem: string;
 }) {
   return (
-    <section className="mb-6 grid items-center gap-7 rounded-[28px] border border-[#e4e9f3] bg-white/95 p-5 shadow-[0_18px_45px_rgba(28,39,76,0.06)] md:px-9 md:py-[30px] lg:grid-cols-[minmax(0,1fr)_360px]">
+    <section className="mb-6 grid items-center gap-7 rounded-[28px] border border-brand-line bg-white/95 p-5 shadow-[0_18px_45px_rgba(28,39,76,0.06)] md:px-9 md:py-[30px] lg:grid-cols-[minmax(0,1fr)_360px]">
       <div>
         <span
           className="inline-flex items-center gap-2 rounded-full px-[18px] py-[9px] text-[13px]"
-          style={{ background: "#efe7ff", color: "#7c3cff", fontWeight: 900 }}
+          style={{ background: "#efe7ff", color: "var(--purple)", fontWeight: 900 }}
         >
           <Icone nome={badgeIcone} className="!text-[20px]" />
           {badge}
@@ -95,7 +95,7 @@ export function Hero({
           {titulo}
         </h1>
 
-        <p className="max-w-[620px] text-[17px] leading-[1.7] text-[#667085]">{descricao}</p>
+        <p className="max-w-[620px] text-[17px] leading-[1.7] text-brand-muted">{descricao}</p>
 
         <div className="mt-[34px] flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-[18px]">
           <Link
@@ -108,8 +108,8 @@ export function Hero({
           </Link>
           <Link
             to={acaoSecundaria.to}
-            className="inline-flex h-14 items-center justify-center gap-2.5 rounded-2xl border border-[#cbb8ff] bg-white px-7 text-[15px] no-underline transition hover:border-[#7c3cff] hover:bg-[#f3eeff]"
-            style={{ fontWeight: 900, color: "#7c3cff" }}
+            className="inline-flex h-14 items-center justify-center gap-2.5 rounded-2xl border border-[#cbb8ff] bg-white px-7 text-[15px] no-underline transition hover:border-brand-purple hover:bg-[#f3eeff]"
+            style={{ fontWeight: 900, color: "var(--purple)" }}
           >
             {acaoSecundaria.label}
             <Icone nome={acaoSecundaria.icone} />
@@ -142,7 +142,7 @@ export function Card({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-[22px] rounded-[28px] border border-[#e4e9f3] bg-white/95 p-4 shadow-[0_18px_45px_rgba(28,39,76,0.06)] md:p-6">
+    <div className="mb-[22px] rounded-[28px] border border-brand-line bg-white/95 p-4 shadow-[0_18px_45px_rgba(28,39,76,0.06)] md:p-6">
       <div className="mb-[22px] flex items-start justify-between gap-3 md:items-center">
         <div className="flex min-w-0 items-center gap-2.5 text-[15px] md:text-xl" style={{ fontWeight: 900 }}>
           <Icone nome={icone} style={{ color: COR_TEXTO[cor] }} />
@@ -153,7 +153,7 @@ export function Card({
           <Link
             to={link.to}
             className="inline-flex shrink-0 items-center gap-1.5 text-[13px] no-underline md:text-base"
-            style={{ color: "#7c3cff", fontWeight: 900 }}
+            style={{ color: "var(--purple)", fontWeight: 900 }}
           >
             {link.label}
             <Icone nome="arrow_forward" className="!text-[20px]" />
@@ -183,13 +183,13 @@ export function AcessoRapido({ itens }: { itens: AtalhoRapido[] }) {
           <Link
             key={item.to + item.titulo}
             to={item.to}
-            className="block min-h-[150px] rounded-[18px] border border-[#e4e9f3] bg-white p-6 text-inherit no-underline transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(28,39,76,0.08)]"
+            className="block min-h-[150px] rounded-[18px] border border-brand-line bg-white p-6 text-inherit no-underline transition hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(28,39,76,0.08)]"
           >
             <IconBox icone={item.icone} cor={item.cor} />
             <h3 className="mb-2.5 mt-4 text-xl" style={{ fontWeight: 700 }}>
               {item.titulo}
             </h3>
-            <p className="m-0 text-sm text-[#667085]">{item.descricao}</p>
+            <p className="m-0 text-sm text-brand-muted">{item.descricao}</p>
           </Link>
         ))}
       </div>
@@ -250,21 +250,21 @@ export function TabelaCard({
     <Card icone={icone} cor={cor} titulo={titulo} link={link}>
       {onBusca && (
         <div className="mb-4 flex gap-3.5 max-md:hidden">
-          <label className="flex h-12 flex-1 items-center gap-2.5 rounded-[14px] border border-[#e4e9f3] px-4 text-[#8a98ad]">
+          <label className="flex h-12 flex-1 items-center gap-2.5 rounded-[14px] border border-brand-line px-4 text-[#8a98ad]">
             <Icone nome="search" />
             <input
               type="text"
               value={busca}
               onChange={(e) => onBusca(e.target.value)}
               placeholder={placeholderBusca}
-              className="w-full border-0 bg-transparent text-[#101828] outline-none"
+              className="w-full border-0 bg-transparent text-brand-dark outline-none"
             />
           </label>
           {onExportar && (
             <button
               onClick={onExportar}
               className="inline-flex h-12 items-center gap-2 rounded-[14px] border border-[#8be4ad] bg-white px-5"
-              style={{ color: "#08b347", fontWeight: 900 }}
+              style={{ color: "var(--green)", fontWeight: 900 }}
             >
               <Icone nome="download" />
               Exportar
@@ -273,12 +273,12 @@ export function TabelaCard({
         </div>
       )}
 
-      <div className="overflow-auto rounded-[18px] border border-[#e4e9f3]">
+      <div className="overflow-auto rounded-[18px] border border-brand-line">
         <table className="w-full min-w-[520px] border-collapse text-sm">
-          <thead className="bg-[#f8fafc] text-[#667085]">
+          <thead className="bg-[#f8fafc] text-brand-muted">
             <tr>
               {colunas.map((c) => (
-                <th key={c} className="border-b border-[#e4e9f3] p-4 text-left" style={{ fontWeight: 700 }}>
+                <th key={c} className="border-b border-brand-line p-4 text-left" style={{ fontWeight: 700 }}>
                   {c}
                 </th>
               ))}
@@ -287,7 +287,7 @@ export function TabelaCard({
           <tbody>
             {linhas.length === 0 ? (
               <tr>
-                <td colSpan={colunas.length} className="p-10 text-center text-[#667085]">
+                <td colSpan={colunas.length} className="p-10 text-center text-brand-muted">
                   {vazio}
                 </td>
               </tr>
@@ -295,7 +295,7 @@ export function TabelaCard({
               linhas.map((linha, i) => (
                 <tr key={i} className="[&:last-child>td]:border-b-0">
                   {linha.map((c, j) => (
-                    <td key={j} className="border-b border-[#e4e9f3] p-4 align-middle">
+                    <td key={j} className="border-b border-brand-line p-4 align-middle">
                       {renderCelula(c)}
                     </td>
                   ))}
@@ -344,20 +344,20 @@ export function AgendaHoje({
   return (
     <Card icone="event" cor="purple" titulo={titulo} link={link}>
       {itens.length === 0 ? (
-        <p className="m-0 py-4 text-center text-sm text-[#667085]">{vazio}</p>
+        <p className="m-0 py-4 text-center text-sm text-brand-muted">{vazio}</p>
       ) : (
         <div className="flex flex-col">
           {itens.map((item, i) => (
-            <div key={i} className="flex items-center gap-3.5 border-b border-[#e4e9f3] py-3.5 last:border-b-0">
-              <div className="flex min-w-[42px] shrink-0 flex-col gap-[3px] text-xs leading-[1.3] text-[#667085]" style={{ fontWeight: 700 }}>
+            <div key={i} className="flex items-center gap-3.5 border-b border-brand-line py-3.5 last:border-b-0">
+              <div className="flex min-w-[42px] shrink-0 flex-col gap-[3px] text-xs leading-[1.3] text-brand-muted" style={{ fontWeight: 700 }}>
                 <span>{item.inicio}</span>
                 <span>{item.fim}</span>
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                <span className="truncate text-[13px] text-[#101828]" style={{ fontWeight: 700 }}>
+                <span className="truncate text-[13px] text-brand-dark" style={{ fontWeight: 700 }}>
                   {item.titulo}
                 </span>
-                <span className="text-xs text-[#667085]">{item.info}</span>
+                <span className="text-xs text-brand-muted">{item.info}</span>
               </div>
               <PillStatus rotulo={item.status.rotulo} cor={item.status.cor} />
             </div>
@@ -393,13 +393,13 @@ export function PraticasLista({
   return (
     <Card icone={icone} cor={cor} titulo={titulo} link={link}>
       {itens.length === 0 ? (
-        <p className="m-0 py-4 text-center text-sm text-[#667085]">{vazio}</p>
+        <p className="m-0 py-4 text-center text-sm text-brand-muted">{vazio}</p>
       ) : (
         <div className="flex flex-col">
           {itens.map((item, i) => {
             const ok = item.status === "preparada";
             return (
-              <div key={i} className="flex items-center gap-3 border-b border-[#e4e9f3] py-[13px] last:border-b-0">
+              <div key={i} className="flex items-center gap-3 border-b border-brand-line py-[13px] last:border-b-0">
                 <div
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
                   style={{ background: ok ? "#d1fadf" : "#fff3d6", color: ok ? "#027a48" : "#b45309" }}
@@ -407,16 +407,16 @@ export function PraticasLista({
                   <Icone nome={ok ? "check_circle" : "schedule"} className="!text-[17px]" />
                 </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                  <span className="text-[13px] text-[#101828]" style={{ fontWeight: 700 }}>
+                  <span className="text-[13px] text-brand-dark" style={{ fontWeight: 700 }}>
                     {item.titulo}
                   </span>
-                  <span className="truncate text-xs text-[#667085]">{item.descricao}</span>
+                  <span className="truncate text-xs text-brand-muted">{item.descricao}</span>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-0.5">
-                  <span className="text-xs" style={{ fontWeight: 700, color: ok ? "#08b347" : "#ff7a1a" }}>
+                  <span className="text-xs" style={{ fontWeight: 700, color: ok ? "var(--green)" : "var(--orange)" }}>
                     {ok ? "Preparada" : "Pendente"}
                   </span>
-                  <span className="text-[11px] text-[#667085]">{item.tempo}</span>
+                  <span className="text-[11px] text-brand-muted">{item.tempo}</span>
                 </div>
               </div>
             );
@@ -449,21 +449,21 @@ export function ResumoCard({
       icone="monitoring"
       cor="blue"
       titulo={titulo}
-      extra={<span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: "#7c3cff" }} />}
+      extra={<span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: "var(--purple)" }} />}
     >
       <div className="mb-4 flex flex-col">
         {itens.map((item) => (
-          <div key={item.titulo} className="flex items-center gap-3.5 border-b border-[#e4e9f3] py-3.5 last:border-b-0">
+          <div key={item.titulo} className="flex items-center gap-3.5 border-b border-brand-line py-3.5 last:border-b-0">
             <IconBox icone={item.icone} cor={item.cor} />
             <div className="flex flex-col gap-[3px]">
-              <span className="text-sm text-[#101828]" style={{ fontWeight: 600 }}>
+              <span className="text-sm text-brand-dark" style={{ fontWeight: 600 }}>
                 {item.titulo}
               </span>
-              <small className="text-xs text-[#667085]" style={{ fontWeight: 500 }}>
+              <small className="text-xs text-brand-muted" style={{ fontWeight: 500 }}>
                 {item.subtitulo}
               </small>
             </div>
-            <strong className="ml-auto text-[22px] text-[#101828]" style={{ fontWeight: 800 }}>
+            <strong className="ml-auto text-[22px] text-brand-dark" style={{ fontWeight: 800 }}>
               {item.valor}
             </strong>
           </div>
@@ -503,14 +503,14 @@ export function AtividadesCard({
   return (
     <Card icone="history" cor="purple" titulo={titulo}>
       {itens.length === 0 ? (
-        <p className="m-0 py-4 text-center text-sm text-[#667085]">{vazio}</p>
+        <p className="m-0 py-4 text-center text-sm text-brand-muted">{vazio}</p>
       ) : (
         itens.map((item, i) => (
-          <div key={i} className="flex items-center gap-3.5 border-b border-[#e4e9f3] py-3.5 last:border-b-0">
+          <div key={i} className="flex items-center gap-3.5 border-b border-brand-line py-3.5 last:border-b-0">
             <IconBox icone={item.icone} cor={item.cor} />
             <div className="min-w-0 flex-1">
               <strong className="block truncate text-[13px]">{item.titulo}</strong>
-              <small className="text-[#667085]">{item.tempo}</small>
+              <small className="text-brand-muted">{item.tempo}</small>
             </div>
             <Icone nome="chevron_right" className="text-[#98a2b3]" />
           </div>
@@ -520,7 +520,7 @@ export function AtividadesCard({
         <Link
           to={link.to}
           className="inline-flex items-center gap-1.5 no-underline"
-          style={{ color: "#7c3cff", fontWeight: 900 }}
+          style={{ color: "var(--purple)", fontWeight: 900 }}
         >
           {link.label}
           <Icone nome="arrow_forward" className="!text-[20px]" />

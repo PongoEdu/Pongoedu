@@ -1,6 +1,6 @@
   # PongoEdu — Front-end
 
-  Front-end (React + Vite) do PongoEdu, plataforma de gestão de laboratórios didáticos. Consome a API do backend Spring Boot descrita no projeto (autenticação, produtos/categorias/lotes, roteiros, agendamentos, preparações, empréstimos, solicitações de compra, recebimentos, usuários e notificações).
+  Front-end (React + Vite) do PongoEdu, plataforma de Laboratórios Educacionais didáticos. Consome a API do backend Spring Boot descrita no projeto (autenticação, produtos/categorias/lotes, roteiros, agendamentos, preparações, empréstimos, solicitações de compra, recebimentos, usuários e notificações).
 
   ## Configuração
 

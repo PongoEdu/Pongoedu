@@ -232,7 +232,7 @@ export function AgendaProfessor() {
                   setSelecionado(null);
                   await cancelar(id);
                 }}
-                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-[#ff304f] px-5 text-[13px] text-[#ff304f] hover:bg-[#fff0f0]"
+                className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-brand-red px-5 text-[13px] text-brand-red hover:bg-[#fff0f0]"
                 style={{ fontWeight: 600 }}
               >
                 Cancelar agendamento

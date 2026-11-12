@@ -38,15 +38,11 @@ export function Home() {
   }, []);
 
   return (
-    // Qualquer clique na página inicial leva ao login
-    <div
-      className="relative isolate min-h-screen cursor-pointer overflow-hidden bg-[#f7f7fb]"
-      onClick={() => navigate("/login")}
-    >
-      <FundoDecorativo fixo className="-z-10" />
+    <div className="relative isolate min-h-screen overflow-hidden bg-page-bg">
+      <FundoDecorativo alturaJanela className="-z-10 !top-[83px] !h-[calc(100vh-83px)]" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[#e8edf5] bg-white/95 backdrop-blur-[14px]">
+      <header className="sticky top-0 z-50 border-b border-brand-line bg-white/95 backdrop-blur-[14px]">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
           <BrandLogo />
           <div className="flex gap-2">
@@ -61,7 +57,7 @@ export function Home() {
       </header>
 
       {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14">
+      <section className="max-w-7xl mx-auto px-3 sm:px-4 pb-10 pt-20 sm:pb-14">
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="mb-3 sm:mb-4 px-2 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Consulte a agenda em tempo real!</h2>
           <p className="text-muted-foreground text-base sm:text-lg px-3">
@@ -69,7 +65,8 @@ export function Home() {
           </p>
         </div>
 
-        <div className="mb-3">
+        {/* Somente a agenda (e o botão Entrar) levam ao login */}
+        <div className="mb-3 cursor-pointer" onClick={() => navigate("/login")}>
           <CalendarioSemanal agendamentos={agenda} anonimo onSemana={carregarSemana} onSelecionar={() => navigate("/login")} />
         </div>
         <p className="mb-10 sm:mb-14 text-center text-xs text-muted-foreground">
@@ -109,21 +106,14 @@ export function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-r from-primary to-secondary py-10 sm:py-14">
+      {/* Footer (com a faixa colorida) */}
+      <footer className="bg-gradient-to-r from-primary to-secondary py-10 sm:py-14">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 text-center">
           <h2 className="text-white mb-3 sm:mb-4 px-2">Pronto para transformar seu laboratório?</h2>
-          <p className="text-white/90 text-base sm:text-lg md:text-xl mb-6 sm:mb-8 px-3">
-            Junte-se a instituições que já estão revolucionando a gestão de laboratórios didáticos
+          <p className="text-white/90 text-base sm:text-lg md:text-xl mb-8 sm:mb-10 px-3">
+            Junte-se a instituições que já estão revolucionando a Laboratórios Educacionais didáticos
           </p>
-          <button className="px-8 sm:px-10 py-3 sm:py-4 bg-white text-primary rounded-2xl hover:scale-105 transition-transform shadow-xl text-sm sm:text-base text-[#7c3aed]">Comece Gratuitamente</button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-[#e8edf5] bg-white py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 text-center">
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+          <p className="border-t border-white/25 pt-6 text-xs sm:text-sm text-white/80">
             © 2026 PongoEdu. Todos os direitos reservados.
           </p>
         </div>

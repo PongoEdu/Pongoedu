@@ -36,8 +36,8 @@ export function BrandLogo({
           className="font-black leading-none"
           style={{ fontSize: titleSize, fontWeight: 900, lineHeight: 1 }}
         >
-          <span style={{ color: "#08b347" }}>Pongo</span>
-          <span style={{ color: "#7c3cff" }}>Edu</span>
+          <span style={{ color: "var(--green)" }}>Pongo</span>
+          <span style={{ color: "var(--purple)" }}>Edu</span>
         </div>
         <div
           className="truncate"
