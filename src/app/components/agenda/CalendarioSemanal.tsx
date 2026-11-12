@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AgendamentoResponse, SituacaoAgendamento } from "../../../lib/api/types";
 
 /* Agenda semanal (domingo a sábado), no mesmo padrão visual do projeto em HTML. */
@@ -69,11 +69,27 @@ interface Props {
   mostrarProfessor?: boolean;
   onSelecionar: (agendamento: AgendamentoResponse) => void;
   carregando?: boolean;
+  /** Esconde professor/prática (uso público): os blocos aparecem apenas como "Reservado". */
+  anonimo?: boolean;
+  /** Chamado ao montar e sempre que a semana exibida muda (datas AAAA-MM-DD). */
+  onSemana?: (inicio: string, fim: string) => void;
 }
 
-export function CalendarioSemanal({ agendamentos, mostrarProfessor = false, onSelecionar, carregando }: Props) {
+export function CalendarioSemanal({
+  agendamentos,
+  mostrarProfessor = false,
+  onSelecionar,
+  carregando,
+  anonimo = false,
+  onSemana,
+}: Props) {
   const [offset, setOffset] = useState(0);
   const dias = useMemo(() => diasDaSemana(offset), [offset]);
+
+  useEffect(() => {
+    onSemana?.(dataISO(dias[0]), dataISO(dias[6]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offset]);
   const hojeStr = dataISO(new Date());
   const horas = Array.from({ length: HORA_FIM - HORA_INICIO }, (_, i) => HORA_INICIO + i);
 
@@ -214,7 +230,7 @@ export function CalendarioSemanal({ agendamentos, mostrarProfessor = false, onSe
                             borderLeft: `3px solid ${cor.borda}`,
                             color: cor.texto,
                           }}
-                          title={`${a.professorNome} — ${info.rotulo}`}
+                          title={anonimo ? info.rotulo : `${a.professorNome} — ${info.rotulo}`}
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[10px]" style={{ fontWeight: 600, opacity: 0.8 }}>
@@ -223,7 +239,7 @@ export function CalendarioSemanal({ agendamentos, mostrarProfessor = false, onSe
                             <span className="material-symbols-rounded !text-[12px]">{info.icone}</span>
                           </div>
                           <span className="text-xs leading-tight" style={{ fontWeight: 800 }}>
-                            {a.professorNome}
+                            {anonimo ? "Reservado" : a.professorNome}
                           </span>
                         </button>
                       );

@@ -1,11 +1,47 @@
-import { Link } from "react-router";
-import { Beaker, TestTube, Bug, Heart, FlaskConical, Shield, BookOpen, Bell } from "lucide-react";
-import { BrandLogo, MascotLogo } from "./mascot-logo";
+import { useCallback, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { FlaskConical, Shield, BookOpen, Bell } from "lucide-react";
+import { BrandLogo } from "./mascot-logo";
 import { FeatureCard } from "./feature-card";
+import { CalendarioSemanal } from "./agenda/CalendarioSemanal";
+import type { AgendamentoResponse } from "../../lib/api/types";
+import { agendaPublicaApi, type OcupacaoPublica } from "../../lib/api/agendaPublica";
+
+/** Converte a ocupação pública (sem dados pessoais) no formato do calendário. */
+function paraAgendamentos(itens: OcupacaoPublica[]): AgendamentoResponse[] {
+  return itens.map((o, i) => ({
+    id: i + 1,
+    professorId: 0,
+    professorNome: "Reservado",
+    laboratorioId: 0,
+    laboratorioNome: "",
+    roteiroId: 0,
+    roteiroTitulo: "",
+    data: o.data,
+    horaInicio: o.horaInicio,
+    horaFim: o.horaFim,
+    situacao: o.situacao,
+    observacao: null,
+  }));
+}
 
 export function Home() {
+  const navigate = useNavigate();
+  const [agenda, setAgenda] = useState<AgendamentoResponse[]>([]);
+
+  const carregarSemana = useCallback((inicio: string, fim: string) => {
+    agendaPublicaApi
+      .ocupacao(inicio, fim)
+      .then((itens) => setAgenda(paraAgendamentos(itens)))
+      .catch(() => setAgenda([]));
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent">
+    // Qualquer clique na página inicial leva ao login
+    <div
+      className="min-h-screen cursor-pointer bg-gradient-to-b from-background to-accent"
+      onClick={() => navigate("/login")}
+    >
       {/* Header */}
       <header className="border-b-2 border-border bg-background">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
@@ -21,79 +57,21 @@ export function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-16 text-center">
-        <div className="flex justify-center mb-6">
-          <MascotLogo />
-        </div>
-
-        <h1 className="mb-3 sm:mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent px-2">
-          Transforme a gestão do seu laboratório
-        </h1>
-
-        <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto mb-6 sm:mb-8 px-3">O único sistema que conecta o laboratório <span className="text-primary font-bold">tem</span> ao que os professores <span className="text-secondary font-bold">precisam ensinar</span> — em tempo real!</p>
-
-        <div className="flex gap-3 justify-center flex-wrap px-3 mb-8">
-          <button className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-primary-foreground rounded-2xl hover:scale-105 transition-transform shadow-lg hover:shadow-xl text-sm sm:text-base">
-            Começar Agora
-          </button>
-          <button className="px-6 sm:px-8 py-3 sm:py-4 bg-card border-2 border-border text-foreground rounded-2xl hover:scale-105 transition-transform text-sm sm:text-base">
-            Ver Demonstração
-          </button>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-4 sm:p-6 text-center">
-            <div className="text-3xl sm:text-4xl font-bold text-primary mb-1 sm:mb-2">100%</div>
-            <div className="text-foreground text-sm sm:text-base">Estoque Centralizado</div>
-          </div>
-          <div className="bg-secondary/10 border-2 border-secondary/20 rounded-2xl p-4 sm:p-6 text-center">
-            <div className="text-3xl sm:text-4xl font-bold text-secondary mb-1 sm:mb-2">70%</div>
-            <div className="text-foreground text-sm sm:text-base">Redução de Tempo</div>
-          </div>
-          <div className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-4 sm:p-6 text-center">
-            <div className="text-3xl sm:text-4xl font-bold text-primary mb-1 sm:mb-2">50%</div>
-            <div className="text-foreground text-sm sm:text-base">Mais Reaproveitamento</div>
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-3 sm:px-4 py-10 sm:py-14">
         <div className="text-center mb-8 sm:mb-10">
-          <h2 className="mb-2 sm:mb-3 px-2">Módulos de Estoque</h2>
-          <p className="text-muted-foreground text-sm sm:text-base px-3">Gerencie todos os materiais do seu laboratório em um só lugar</p>
+          <h2 className="mb-3 sm:mb-4 px-2 text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Consulte a agenda em tempo real!</h2>
+          <p className="text-muted-foreground text-base sm:text-lg px-3">
+            Veja a ocupação do laboratório na semana e reserve a sua prática sem conflitos de horário
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10 sm:mb-14">
-          <FeatureCard
-            icon={TestTube}
-            title="Reagentes Químicos"
-            description="Controle completo com FISPQ, validade e alertas de segurança"
-            color="green"
-          />
-          <FeatureCard
-            icon={Beaker}
-            title="Vidraria"
-            description="Rastreie cada item com estado de conservação e localização"
-            color="purple"
-          />
-          <FeatureCard
-            icon={Bug}
-            title="Coleção Zoológica"
-            description="Catalogação taxonômica completa com registro fotográfico"
-            color="green"
-          />
-          <FeatureCard
-            icon={Heart}
-            title="Modelos Anatômicos"
-            description="Gestão de peças didáticas com controle de empréstimo"
-            color="purple"
-          />
+        <div className="mb-3">
+          <CalendarioSemanal agendamentos={agenda} anonimo onSemana={carregarSemana} onSelecionar={() => navigate("/login")} />
         </div>
+        <p className="mb-10 sm:mb-14 text-center text-xs text-muted-foreground">
+          Ocupação atualizada em tempo real. Entre para reservar a sua prática.
+        </p>
 
         <div className="text-center mb-8 sm:mb-10">
           <h2 className="mb-2 sm:mb-3 px-2">Funcionalidades Inteligentes</h2>
