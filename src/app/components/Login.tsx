@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { ArrowRight, Eye, EyeOff, House, Lock, Mail } from "lucide-react";
 import { BrandLogo, MascotLogo } from "./mascot-logo";
+import { FundoDecorativo } from "./shared/FundoDecorativo";
 import { useAuth, mensagemDeErro } from "../auth/AuthContext";
 import { ApiError } from "../../lib/api/http";
 
@@ -76,19 +77,7 @@ export function Login() {
 
       {/* Conteúdo */}
       <main className="relative flex flex-1 items-center justify-center overflow-hidden px-5 py-20">
-        {/* Círculos e pontos decorativos */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
-          <div className="absolute -left-[50px] top-[120px] h-[150px] w-[150px] rounded-full border border-[#7c3cff]/20" />
-          <div className="absolute right-10 top-20 h-20 w-20 rounded-full border border-[#7c3cff]/20" />
-          <div className="absolute bottom-10 right-2.5 h-[120px] w-[120px] rounded-full border border-[#7c3cff]/20" />
-
-          <div className="absolute left-[120px] top-[140px] h-[18px] w-[18px] rounded-full" style={{ background: GREEN }} />
-          <div className="absolute bottom-[300px] left-[100px] h-5 w-5 rounded-full" style={{ background: BLUE }} />
-          <div className="absolute bottom-20 left-[160px] h-5 w-5 rounded-full" style={{ background: PURPLE }} />
-          <div className="absolute right-[180px] top-[320px] h-4 w-4 rounded-full" style={{ background: GREEN }} />
-          <div className="absolute bottom-[100px] right-[130px] h-[22px] w-[22px] rounded-full" style={{ background: BLUE }} />
-          <div className="absolute bottom-[360px] right-[200px] h-4 w-4 rounded-full" style={{ background: PURPLE }} />
-        </div>
+        <FundoDecorativo />
 
         <div className="relative z-[2] w-full max-w-[520px] rounded-[34px] border border-[#e7ecf5] bg-white px-6 py-[29px] shadow-[0_30px_60px_rgba(25,33,61,0.08)] md:px-12 md:py-11">
           <div className="mx-auto mb-2.5 flex justify-center">

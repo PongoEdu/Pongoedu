@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { FlaskConical, Shield, BookOpen, Bell } from "lucide-react";
 import { BrandLogo } from "./mascot-logo";
 import { FeatureCard } from "./feature-card";
+import { FundoDecorativo } from "./shared/FundoDecorativo";
 import { CalendarioSemanal } from "./agenda/CalendarioSemanal";
 import type { AgendamentoResponse } from "../../lib/api/types";
 import { agendaPublicaApi, type OcupacaoPublica } from "../../lib/api/agendaPublica";
@@ -39,11 +40,13 @@ export function Home() {
   return (
     // Qualquer clique na página inicial leva ao login
     <div
-      className="min-h-screen cursor-pointer bg-gradient-to-b from-background to-accent"
+      className="relative isolate min-h-screen cursor-pointer overflow-hidden bg-[#f7f7fb]"
       onClick={() => navigate("/login")}
     >
+      <FundoDecorativo fixo className="-z-10" />
+
       {/* Header */}
-      <header className="border-b-2 border-border bg-background">
+      <header className="sticky top-0 z-50 border-b border-[#e8edf5] bg-white/95 backdrop-blur-[14px]">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between">
           <BrandLogo />
           <div className="flex gap-2">
@@ -118,7 +121,7 @@ export function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-background border-t-2 border-border py-6 sm:py-8">
+      <footer className="border-t border-[#e8edf5] bg-white py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 text-center">
           <p className="text-xs sm:text-sm text-muted-foreground mt-2">
             © 2026 PongoEdu. Todos os direitos reservados.
